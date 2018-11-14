@@ -16,7 +16,20 @@
  (db session records)
  (let [logged-in? (some? (:user-id session))
        router (:router session)
-       base-data {:logged-in? logged-in?, :session session, :reel-length (count records)}]
+       base-data {:logged-in? logged-in?,
+                  :session session,
+                  :reel-length (count records),
+                  :locales (let [locale-keys (set
+                                              (concat
+                                               (keys (get db "zhCn"))
+                                               (keys (get db "enUS"))))]
+                    (->> locale-keys
+                         (map
+                          (fn [locale-key]
+                            [locale-key
+                             {"zhCN" (get-in db ["zhCN" locale-key]),
+                              "enUS" (get-in db ["enUS" locale-key])}]))
+                         (into {})))}]
    (merge
     base-data
     (if logged-in?
