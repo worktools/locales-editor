@@ -12,7 +12,7 @@
   {:storage-key "locales-editor",
    :port 8008,
    :title "Locales",
-   :icon "http://cdn.tiye.me/logo/jimeng.png",
+   :icon "https://cdn.tiye.me/logo/jimeng-360x360.png",
    :dev-ui "http://localhost:8100/main.css",
    :release-ui "http://cdn.tiye.me/favored-fonts/main.css",
    :cdn-url "http://cdn.tiye.me/locales-editor/",

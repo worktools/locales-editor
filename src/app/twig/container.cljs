@@ -2,7 +2,8 @@
 (ns app.twig.container
   (:require [recollect.macros :refer [deftwig]]
             [app.twig.user :refer [twig-user]]
-            ["randomcolor" :as color]))
+            ["randomcolor" :as color]
+            [clojure.string :as string]))
 
 (deftwig
  twig-members
@@ -19,16 +20,22 @@
        base-data {:logged-in? logged-in?,
                   :session session,
                   :reel-length (count records),
-                  :locales (let [locale-keys (set
+                  :locales (let [locales (:locales db)
+                                 locale-keys (set
                                               (concat
-                                               (keys (get db "zhCn"))
-                                               (keys (get db "enUS"))))]
+                                               (keys (get locales "zhCn"))
+                                               (keys (get locales "enUS"))))]
                     (->> locale-keys
                          (map
                           (fn [locale-key]
                             [locale-key
-                             {"zhCN" (get-in db ["zhCN" locale-key]),
-                              "enUS" (get-in db ["enUS" locale-key])}]))
+                             {"zhCN" (get-in locales ["zhCN" locale-key]),
+                              "enUS" (get-in locales ["enUS" locale-key])}]))
+                         (filter
+                          (fn [[k info]]
+                            (if (some? (:query session))
+                              (string/includes? k (:query session))
+                              true)))
                          (into {})))}]
    (merge
     base-data

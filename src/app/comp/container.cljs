@@ -64,12 +64,12 @@
       (comp-navigation (:logged-in? store) (:count store))
       (if (:logged-in? store)
         (case (:name router)
-          :home (comp-workspace (:locales store))
+          :home (cursor-> :workspace comp-workspace states (:locales store))
           :profile (comp-profile (:user store) (:data router))
           (<> router))
         (comp-login states))
-      (comp-status-color (:color store))
-      (when dev? (comp-inspect "Store" store {:bottom 0, :left 0, :max-width "100%"}))
+      (comment comp-status-color (:color store))
+      (when dev? (comp-inspect "Store" store {:bottom 40, :right 0, :max-width "100%"}))
       (comp-messages
        (get-in store [:session :messages])
        {}
