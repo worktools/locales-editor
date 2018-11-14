@@ -12,7 +12,8 @@
             [app.node-config :as node-config]
             [app.config :refer [dev?]]
             [app.config :as config]
-            [fipp.edn :refer [pprint]]))
+            [fipp.edn :refer [pprint]]
+            [clojure.string :as string]))
 
 (def initial-db
   (let [filepath (:storage-path node-config/env)]
@@ -25,6 +26,43 @@
 (defonce *reel (atom (merge reel-schema {:base initial-db, :db initial-db})))
 
 (defonce *reader-reel (atom @*reel))
+
+(defn get-local-file [x]
+  (let [locale-keys (sort-by (fn [y] (string/lower-case y)) (keys x))]
+    (->> locale-keys
+         (map (fn [k] (str "  " k ": " (pr-str (get x k)) ",")))
+         (string/join "\n"))))
+
+(defn generate-files! []
+  (let [base js/process.env.PWD
+        en-file (.join path base "enUS.ts")
+        zh-file (.join path base "zhCN.ts")
+        interface-file (.join path base "interface.ts")
+        db (:db @*reel)
+        locales (:locales db)]
+    (println "Genrate files.")
+    (fs/writeFileSync
+     en-file
+     (str
+      "import { ILang } from \"./interface\";\nexport const zhCN: ILang = {\n"
+      (get-local-file (get locales "enUS"))
+      "\n};\n"))
+    (fs/writeFileSync
+     zh-file
+     (str
+      "import { ILang } from \"./interface\";\nexport const zhCN: ILang = {\n"
+      (get-local-file (get locales "zhCN"))
+      "\n};\n"))
+    (fs/writeFileSync
+     interface-file
+     (let [locale-keys (sort-by
+                        (fn [k] (string/lower-case k))
+                        (distinct
+                         (concat (keys (get locales "enUS")) (keys (get locales "zhCN")))))]
+       (str
+        "\nexport interface ILang {\n"
+        (->> locale-keys (map (fn [k] (str "  " k ": string;"))) (string/join "\n"))
+        "\n}\n")))))
 
 (defn persist-db! []
   (let [file-content (with-out-str (pprint (assoc (:db @*reel) :sessions {})))
@@ -46,6 +84,7 @@
     (try
      (cond
        (= op :effect/persist) (persist-db!)
+       (= op :effect/codegen) (generate-files!)
        :else
          (let [new-reel (reel-reducer @*reel updater op op-data sid op-id op-time)]
            (reset! *reel new-reel)))

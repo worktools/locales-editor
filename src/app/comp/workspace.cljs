@@ -91,7 +91,12 @@
      (fn [result d! m!]
        (when (not (string/blank? result))
          (d! :locale/add-one result)
-         (d! :session/query result)))))))
+         (d! :session/query result))))
+    (=< 16 nil)
+    (button
+     {:style ui/button,
+      :inner-text "Codegen",
+      :on-click (fn [e d! m!] (d! :effect/codegen nil))}))))
 
 (defcomp
  comp-workspace
