@@ -5,59 +5,69 @@
             [respo.comp.space :refer [=<]]
             [respo.core :refer [defcomp <> action-> cursor-> list-> input button span div]]
             [app.config :as config]
-            [respo-alerts.comp.alerts :refer [comp-prompt]]
-            [clojure.string :as string]))
+            [respo-alerts.comp.alerts :refer [comp-prompt comp-alert]]
+            [clojure.string :as string]
+            [feather.core :refer [comp-i]]))
 
-(def style-hint {:display :inline-block, :color (hsl 0 0 80), :margin-right 16})
+(def style-hint {:display :inline-block, :color (hsl 0 0 80), :margin "0 16px"})
+
+(defcomp
+ comp-locale
+ (states k v)
+ (div
+  {:style (merge
+           ui/flex
+           ui/column
+           {:padding "8px 16px", :display :inline-flex, :background-color :white, :margin 8})}
+  (div
+   {:style (merge
+            ui/row-middle
+            {:min-width 240, :font-family ui/font-code, :overflow :auto})}
+   (cursor->
+    :rename
+    comp-prompt
+    states
+    {:trigger (<> k), :initial k}
+    (fn [result d! m!]
+      (when (not (string/blank? result)) (d! :locale/rename-one {:from k, :to result}))))
+   (=< 8 nil)
+   (cursor->
+    :remove
+    comp-alert
+    states
+    {:trigger (comp-i :x 14 (hsl 0 80 60))}
+    (fn [e d! m!] (d! :locale/rm-one k))))
+  (div
+   {}
+   (<> "zhCN" style-hint)
+   (cursor->
+    "zhCN"
+    comp-prompt
+    states
+    {:trigger (<> (get v "zhCN")), :initial (get v "zhCN")}
+    (fn [result d! m!]
+      (when (not (string/blank? result))
+        (d! :locale/edit-one {:lang "zhCN", :key k, :text result})))))
+  (div
+   {}
+   (<> "enUS" style-hint)
+   (cursor->
+    "enUS"
+    comp-prompt
+    states
+    {:trigger (<> (get v "enUS")), :initial (get v "enUS")}
+    (fn [result d! m!]
+      (when (not (string/blank? result))
+        (d! :locale/edit-one {:lang "enUS", :key k, :text result})))))))
 
 (defcomp
  comp-lang-table
  (states locales)
  (div
-  {:style (merge ui/flex {:overflow :auto})}
+  {:style (merge ui/flex {:overflow :auto, :background-color (hsl 0 0 90), :padding 8})}
   (list->
    {}
-   (->> locales
-        (take 40)
-        (map
-         (fn [[k v]]
-           [k
-            (div
-             {:style (merge ui/row {:padding "8px 16px"})}
-             (div
-              {:style {:width 320, :font-family ui/font-code}}
-              (cursor->
-               :rename
-               comp-prompt
-               states
-               {:trigger (<> k), :initial k}
-               (fn [result d! m!]
-                 (when (not (string/blank? result))
-                   (d! :locale/rename-one {:from k, :to result})))))
-             (div
-              {:style (merge ui/flex ui/column)}
-              (div
-               {}
-               (<> "zhCN" style-hint)
-               (cursor->
-                "zhCN"
-                comp-prompt
-                states
-                {:trigger (<> (get v "zhCN")), :initial (get v "zhCN")}
-                (fn [result d! m!]
-                  (when (not (string/blank? result))
-                    (d! :locale/edit-one {:lang "zhCN", :key k, :text result})))))
-              (div
-               {}
-               (<> "enUS" style-hint)
-               (cursor->
-                "enUS"
-                comp-prompt
-                states
-                {:trigger (<> (get v "enUS")), :initial (get v "enUS")}
-                (fn [result d! m!]
-                  (when (not (string/blank? result))
-                    (d! :locale/edit-one {:lang "enUS", :key k, :text result})))))))]))))
+   (->> locales (take 40) (map (fn [[k v]] [k (cursor-> k comp-locale states k v)]))))
   (let [size (count locales)]
     (div
      {:style (merge ui/center {:padding 16})}
@@ -67,41 +77,45 @@
 
 (defcomp
  comp-search-box
- (states)
+ (states query)
  (let [state (or (:data states) {:text ""})]
    (div
-    {:style {:padding 16}}
-    (input
-     {:value (:text state),
-      :style ui/input,
-      :on-input (fn [e d! m!] (m! (assoc state :text (:value e)))),
-      :on-keydown (fn [e d! m!]
-        (when (= "Enter" (.-key (:event e))) (d! :session/query (:text state))))})
-    (=< 16 nil)
-    (button
-     {:style ui/button,
-      :inner-text "Search",
-      :on-click (fn [e d! m!] (d! :session/query (:text state)))})
-    (=< 16 nil)
-    (cursor->
-     :add
-     comp-prompt
-     states
-     {:trigger (button {:style ui/button, :inner-text "Create"})}
-     (fn [result d! m!]
-       (when (not (string/blank? result))
-         (d! :locale/add-one result)
-         (d! :session/query result))))
-    (=< 16 nil)
-    (button
-     {:style ui/button,
-      :inner-text "Codegen",
-      :on-click (fn [e d! m!] (d! :effect/codegen nil))}))))
+    {:style (merge ui/row-parted {:padding 16})}
+    (div
+     {:style {}}
+     (cursor->
+      :add
+      comp-prompt
+      states
+      {:trigger (button {:style ui/button, :inner-text "Create"})}
+      (fn [result d! m!]
+        (when (not (string/blank? result))
+          (d! :locale/add-one result)
+          (d! :session/query result))))
+     (=< 16 nil)
+     (button
+      {:style ui/button,
+       :inner-text "Codegen",
+       :on-click (fn [e d! m!] (d! :effect/codegen nil))}))
+    (div
+     {}
+     (input
+      {:value (:text state),
+       :style ui/input,
+       :placeholder query,
+       :on-input (fn [e d! m!] (m! (assoc state :text (:value e)))),
+       :on-keydown (fn [e d! m!]
+         (when (= "Enter" (.-key (:event e))) (d! :session/query (:text state))))})
+     (=< 16 nil)
+     (button
+      {:style ui/button,
+       :inner-text "Search",
+       :on-click (fn [e d! m!] (d! :session/query (:text state)))})))))
 
 (defcomp
  comp-workspace
- (states locales)
+ (states locales query)
  (div
   {:style (merge ui/flex ui/column {:overflow :auto})}
-  (cursor-> :search comp-search-box states)
+  (cursor-> :search comp-search-box states query)
   (cursor-> :table comp-lang-table states locales)))

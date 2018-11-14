@@ -20,5 +20,6 @@
             :locale/add-one locale/add-one
             :locale/edit-one locale/edit-one
             :locale/rename-one locale/rename-one
+            :locale/rm-one locale/rm-one
             (do (println "Unknown op:" op) identity))]
     (f db op-data sid op-id op-time)))

@@ -23,3 +23,11 @@
                            (let [x0 (:from op-data), x1 (:to op-data)]
                              (-> info (dissoc x0) (assoc x1 (get info x0)))))]
        (-> locales (update "zhCN" entry-updater) (update "enUS" entry-updater))))))
+
+(defn rm-one [db op-data sid op-id op-time]
+  (update
+   db
+   :locales
+   (fn [locales]
+     (let [entry-removal (fn [info] (dissoc info op-data))]
+       (-> locales (update "zhCN" entry-removal) (update "enUS" entry-removal))))))

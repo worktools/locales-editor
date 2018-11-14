@@ -5,6 +5,8 @@
             ["randomcolor" :as color]
             [clojure.string :as string]))
 
+(defn find-chunk [xs x] (string/includes? (string/lower-case xs) (string/lower-case x)))
+
 (deftwig
  twig-members
  (sessions users)
@@ -34,7 +36,9 @@
                          (filter
                           (fn [[k info]]
                             (if (some? (:query session))
-                              (string/includes? k (:query session))
+                              (or (find-chunk k (:query session))
+                                  (find-chunk (get info "zhCN") (:query session))
+                                  (find-chunk (get info "enUS") (:query session)))
                               true)))
                          (into {})))}]
    (merge
