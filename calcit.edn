@@ -173,15 +173,7 @@
               :type :expr, :id "rJMUQ98lgArW", :by nil, :at 1500541010211
               :data {
                "T" {:type :leaf, :id "rJ7ImcUxgCSb", :text "str", :by "root", :at 1500541010211}
-               "j" {:type :leaf, :id "SkV8XqLle0Bb", :text "|ws://", :by "root", :at 1500541010211}
-               "r" {
-                :type :expr, :id "HkrIX9Ilg0Sb", :by nil, :at 1500541010211
-                :data {
-                 "T" {:type :leaf, :id "S18UQcUlgRSW", :text ".-hostname", :by "root", :at 1500541010211}
-                 "j" {:type :leaf, :id "HJPL75UggCBZ", :text "js/location", :by "root", :at 1500541010211}
-                }
-               }
-               "v" {:type :leaf, :id "rkOI7qLxgASZ", :text "|:", :by "root", :at 1500541010211}
+               "j" {:type :leaf, :id "SkV8XqLle0Bb", :text "\"ws://localhost:", :by "root", :at 1542184565270}
                "x" {
                 :type :expr, :id "r1Y8Q9IgeABb", :by nil, :at 1500541010211
                 :data {
@@ -477,7 +469,7 @@
         :type :expr, :id "rJ8FQc8xx0S-", :by nil, :at 1500541010211
         :data {
          "T" {:type :leaf, :id "ryvF75UgxCHW", :text "println", :by "root", :at 1500541010211}
-         "j" {:type :leaf, :id "BJuKm5IglCSb", :text "|App started!", :by "root", :at 1500541010211}
+         "j" {:type :leaf, :id "BJuKm5IglCSb", :text "\"App started!", :by "root", :at 1542184664387}
         }
        }
       }
@@ -4163,7 +4155,7 @@
                     :type :expr, :by "root", :at 1542183402739, :id "c5P9Re9yNN"
                     :data {
                      "T" {:type :leaf, :by "root", :at 1542183402739, :text ":min-width", :id "qo2rbxi-T_"}
-                     "j" {:type :leaf, :by "root", :at 1542183848720, :text "240", :id "goQV3ON-PM"}
+                     "j" {:type :leaf, :by "root", :at 1542184541195, :text "240", :id "goQV3ON-PM"}
                     }
                    }
                    "r" {
@@ -8233,6 +8225,13 @@
         :data {
          "T" {:type :leaf, :id "SJR1GlLZeCSb", :text "println", :by "root", :at 1500541255553}
          "j" {:type :leaf, :id "rJ1lMxLWeASZ", :text "\"Server started.", :by "root", :at 1542182596401}
+        }
+       }
+       "yj" {
+        :type :expr, :by "root", :at 1542184821417, :id "XvUdfxwXYp"
+        :data {
+         "T" {:type :leaf, :by "root", :at 1542184821417, :text "println", :id "h-fDY60TlW"}
+         "j" {:type :leaf, :by "root", :at 1542184821417, :text "\"Editer available on http://repo.tiye.me/chenyong/locales-editor/", :id "LKb2uS8CB6"}
         }
        }
       }

@@ -34,7 +34,7 @@
 (defn connect! []
   (setup-socket!
    *store
-   {:url (str "ws://" (.-hostname js/location) ":" (:port config/site)),
+   {:url (str "ws://localhost:" (:port config/site)),
     :on-close! (fn [event] (reset! *store nil) (.error js/console "Lost connection!")),
     :on-open! (fn [event] (simulate-login!))}))
 

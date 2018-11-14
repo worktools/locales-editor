@@ -105,7 +105,8 @@
   (render-loop!)
   (.on js/process "SIGINT" on-exit!)
   (js/setInterval #(persist-db!) (* 60 1000 10))
-  (println "Server started."))
+  (println "Server started.")
+  (println "Editer available on http://repo.tiye.me/chenyong/locales-editor/"))
 
 (defn reload! []
   (println "Code updated.")

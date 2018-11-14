@@ -1,8 +1,11 @@
 {
-  "name": "cumulo-workflow",
-  "version": "0.1.0",
+  "name": "@jimengio/locales-editor",
+  "version": "0.1.0-a4",
   "description": "Cumulo Workflow",
   "main": "index.js",
+  "bin": {
+    "locales-editor": "./dist/server.js"
+  },
   "scripts": {
     "watch": "shadow-cljs watch client server",
     "build": "shadow-cljs clj-run build.main/build",
