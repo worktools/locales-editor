@@ -13,4 +13,4 @@
 
 (def user {:name nil, :id nil, :nickname nil, :avatar nil, :password nil})
 
-(def database {:sessions (do session {}), :users (do user {}), "zhCN" {}, "enUS" {}})
+(def database {:sessions (do session {}), :users (do user {}), :locales {}})

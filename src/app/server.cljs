@@ -44,7 +44,7 @@
     (fs/writeFileSync
      en-file
      (str
-      "import { ILang } from \"./interface\";\nexport const zhCN: ILang = {\n"
+      "import { ILang } from \"./interface\";\nexport const enUS: ILang = {\n"
       (get-local-file (get locales "enUS"))
       "\n};\n"))
     (fs/writeFileSync
