@@ -13,7 +13,8 @@
             [app.config :refer [dev?]]
             [app.config :as config]
             [fipp.edn :refer [pprint]]
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [favored-edn.core :refer [write-edn]])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (def initial-db
@@ -71,7 +72,7 @@
         "\n}\n")))))
 
 (defn persist-db! []
-  (let [file-content (with-out-str (pprint (assoc (:db @*reel) :sessions {})))
+  (let [file-content (write-edn (assoc (:db @*reel) :sessions {}))
         now (js/Date.)
         storage-path (:storage-path node-config/env)
         backup-path (path/join
