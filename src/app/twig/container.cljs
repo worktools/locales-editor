@@ -22,17 +22,8 @@
        base-data {:logged-in? logged-in?,
                   :session session,
                   :reel-length (count records),
-                  :locales (let [locales (:locales db)
-                                 locale-keys (set
-                                              (concat
-                                               (keys (get locales "zhCn"))
-                                               (keys (get locales "enUS"))))]
-                    (->> locale-keys
-                         (map
-                          (fn [locale-key]
-                            [locale-key
-                             {"zhCN" (get-in locales ["zhCN" locale-key]),
-                              "enUS" (get-in locales ["enUS" locale-key])}]))
+                  :locales (let [locales (:locales db)]
+                    (->> locales
                          (filter
                           (fn [[k info]]
                             (if (some? (:query session))

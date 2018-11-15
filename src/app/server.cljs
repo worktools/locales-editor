@@ -13,24 +13,33 @@
             [app.config :refer [dev?]]
             [app.config :as config]
             [fipp.edn :refer [pprint]]
-            [clojure.string :as string]))
+            [clojure.string :as string])
+  (:require-macros [clojure.core.strint :refer [<<]]))
 
 (def initial-db
   (let [filepath (:storage-path node-config/env)]
     (if (fs/existsSync filepath)
       (do
        (println "Found storage in:" (:storage-path node-config/env))
-       (read-string (fs/readFileSync filepath "utf8")))
+       (let [storage (read-string (fs/readFileSync filepath "utf8"))
+             schema-version (get-in storage [:schema :version])
+             cli-version (get-in schema/database [:schema :version])]
+         (when (not= schema-version cli-version)
+           (println
+            (<<
+             "Schema version(~{schema-version}) does not match version of cli(~{cli-version}). Existing!"))
+           (.exit js/process 1))
+         storage))
       schema/database)))
 
 (defonce *reel (atom (merge reel-schema {:base initial-db, :db initial-db})))
 
 (defonce *reader-reel (atom @*reel))
 
-(defn get-local-file [x]
-  (let [locale-keys (sort-by (fn [y] (string/lower-case y)) (keys x))]
+(defn get-local-file [locales lang]
+  (let [locale-keys (sort-by (fn [y] (string/lower-case y)) (keys locales))]
     (->> locale-keys
-         (map (fn [k] (str "  " k ": " (pr-str (get x k)) ",")))
+         (map (fn [k] (str "  " k ": " (pr-str (get-in locales [k lang])) ",")))
          (string/join "\n"))))
 
 (defn generate-files! []
@@ -45,20 +54,17 @@
      en-file
      (str
       "import { ILang } from \"./interface\";\nexport const enUS: ILang = {\n"
-      (get-local-file (get locales "enUS"))
+      (get-local-file locales "enUS")
       "\n};\n"))
     (fs/writeFileSync
      zh-file
      (str
       "import { ILang } from \"./interface\";\nexport const zhCN: ILang = {\n"
-      (get-local-file (get locales "zhCN"))
+      (get-local-file locales "zhCN")
       "\n};\n"))
     (fs/writeFileSync
      interface-file
-     (let [locale-keys (sort-by
-                        (fn [k] (string/lower-case k))
-                        (distinct
-                         (concat (keys (get locales "enUS")) (keys (get locales "zhCN")))))]
+     (let [locale-keys (sort-by (fn [k] (string/lower-case k)) (keys locales))]
        (str
         "\nexport interface ILang {\n"
         (->> locale-keys (map (fn [k] (str "  " k ": string;"))) (string/join "\n"))

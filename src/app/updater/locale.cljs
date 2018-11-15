@@ -6,28 +6,20 @@
    db
    :locales
    (fn [locales]
-     (let [entry-creator (fn [info]
-                           (println "about info:" (count info) op-data)
-                           (if (contains? info op-data) info (assoc info op-data op-data)))]
-       (-> locales (update "zhCN" entry-creator) (update "enUS" entry-creator))))))
+     (if (contains? locales op-data)
+       locales
+       (assoc locales op-data {"zhCN" op-data, "enUS" op-data})))))
 
 (defn edit-one [db op-data sid op-id op-time]
-  (assoc-in db [:locales (:lang op-data) (:key op-data)] (:text op-data)))
+  (assoc-in db [:locales (:key op-data) (:lang op-data)] (:text op-data)))
 
 (defn rename-one [db op-data sid op-id op-time]
   (update
    db
    :locales
    (fn [locales]
-     (let [entry-updater (fn [info]
-                           (let [x0 (:from op-data), x1 (:to op-data)]
-                             (-> info (dissoc x0) (assoc x1 (get info x0)))))]
-       (-> locales (update "zhCN" entry-updater) (update "enUS" entry-updater))))))
+     (let [x0 (:from op-data), x1 (:to op-data)]
+       (-> locales (dissoc x0) (assoc x1 (get locales x0)))))))
 
 (defn rm-one [db op-data sid op-id op-time]
-  (update
-   db
-   :locales
-   (fn [locales]
-     (let [entry-removal (fn [info] (dissoc info op-data))]
-       (-> locales (update "zhCN" entry-removal) (update "enUS" entry-removal))))))
+  (update db :locales (fn [locales] (dissoc locales op-data))))

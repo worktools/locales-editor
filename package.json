@@ -1,6 +1,6 @@
 {
   "name": "@jimengio/locales-editor",
-  "version": "0.1.0-a5",
+  "version": "0.2.0",
   "description": "Cumulo Workflow",
   "main": "index.js",
   "bin": {
@@ -10,6 +10,7 @@
     "watch": "shadow-cljs watch client server",
     "build": "shadow-cljs clj-run build.main/build",
     "build-local": "shadow-cljs clj-run build.main/build-local",
+    "pkg": "rm -rf dist/* && shadow-cljs release server",
     "page": "shadow-cljs clj-run build.main/page",
     "upload": "lumo -c cli/:src/ -m build.upload",
     "serve": "http-server dist -s",
