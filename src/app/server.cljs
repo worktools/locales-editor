@@ -43,6 +43,20 @@
          (map (fn [k] (str "  " k ": " (pr-str (get-in locales [k lang])) ",")))
          (string/join "\n"))))
 
+(defn persist-db! []
+  (let [file-content (write-edn (assoc (:db @*reel) :sessions {}))
+        now (js/Date.)
+        storage-path (:storage-path node-config/env)
+        backup-path (path/join
+                     js/__dirname
+                     "backups"
+                     (str (inc (.getMonth now)))
+                     (str (.getDate now) "-storage.edn"))]
+    (fs/writeFileSync storage-path file-content)
+    (cp/execSync (str "mkdir -p " (path/dirname backup-path)))
+    (fs/writeFileSync backup-path file-content)
+    (println "Saved file in" storage-path "and saved backup in" backup-path)))
+
 (defn generate-files! []
   (let [base js/process.env.PWD
         en-file (.join path base "enUS.ts")
@@ -69,21 +83,8 @@
        (str
         "\nexport interface ILang {\n"
         (->> locale-keys (map (fn [k] (str "  " k ": string;"))) (string/join "\n"))
-        "\n}\n")))))
-
-(defn persist-db! []
-  (let [file-content (write-edn (assoc (:db @*reel) :sessions {}))
-        now (js/Date.)
-        storage-path (:storage-path node-config/env)
-        backup-path (path/join
-                     js/__dirname
-                     "backups"
-                     (str (inc (.getMonth now)))
-                     (str (.getDate now) "-storage.edn"))]
-    (fs/writeFileSync storage-path file-content)
-    (cp/execSync (str "mkdir -p " (path/dirname backup-path)))
-    (fs/writeFileSync backup-path file-content)
-    (println "Saved file in" storage-path "and saved backup in" backup-path)))
+        "\n}\n")))
+    (persist-db!)))
 
 (defn dispatch! [op op-data sid]
   (let [op-id (.generate shortid), op-time (.valueOf (js/Date.))]
