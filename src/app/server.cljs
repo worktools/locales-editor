@@ -14,7 +14,8 @@
             [app.config :as config]
             [fipp.edn :refer [pprint]]
             [clojure.string :as string]
-            [favored-edn.core :refer [write-edn]])
+            [favored-edn.core :refer [write-edn]]
+            ["javascript-natural-sort" :as naturalSort])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (def initial-db
@@ -37,10 +38,18 @@
 
 (defonce *reader-reel (atom @*reel))
 
+(defn lines-sorter [a b]
+  (set! (.-insensitive naturalSort) true)
+  (if (= (string/lower-case a) (string/lower-case b)) (compare a b) (naturalSort a b)))
+
 (defn get-local-file [locales lang]
-  (let [locale-keys (sort-by (fn [y] (string/lower-case y)) (keys locales))]
+  (let [locale-keys (keys locales)]
     (->> locale-keys
-         (map (fn [k] (str "  " k ": " (pr-str (get-in locales [k lang])) ",")))
+         (map
+          (fn [k]
+            (let [v (get-in locales [k lang])]
+              (str "  " k ": " (if (string/includes? v "\"") (str "'" v "'") (pr-str v)) ","))))
+         (sort lines-sorter)
          (string/join "\n"))))
 
 (defn persist-db! []
@@ -79,10 +88,13 @@
       "\n};\n"))
     (fs/writeFileSync
      interface-file
-     (let [locale-keys (sort-by (fn [k] (string/lower-case k)) (keys locales))]
+     (let [locale-keys (keys locales)]
        (str
-        "\nexport interface ILang {\n"
-        (->> locale-keys (map (fn [k] (str "  " k ": string;"))) (string/join "\n"))
+        "export interface ILang {\n"
+        (->> locale-keys
+             (map (fn [k] (str "  " k ": string;")))
+             (sort lines-sorter)
+             (string/join "\n"))
         "\n}\n")))
     (persist-db!)))
 
