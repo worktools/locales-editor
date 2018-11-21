@@ -34,7 +34,8 @@
                                 (sort-by (fn [[k info]] (count k)))
                                 (take 40)
                                 (into {})),
-                  :matched-count (count matched-locale-pairs)}]
+                  :matched-count (count matched-locale-pairs),
+                  :need-save? (not= (:locales db) (:saved-locales db))}]
    (merge
     base-data
     (if logged-in?

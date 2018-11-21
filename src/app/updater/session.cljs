@@ -7,6 +7,9 @@
 (defn disconnect [db op-data sid op-id op-time]
   (update db :sessions (fn [session] (dissoc session sid))))
 
+(defn notify [db op-data sid op-id op-time]
+  (assoc-in db [:sessions sid :messages op-id] {:id op-id, :text op-data}))
+
 (defn query [db op-data sid op-id op-time] (assoc-in db [:sessions sid :query] op-data))
 
 (defn remove-message [db op-data sid op-id op-time]

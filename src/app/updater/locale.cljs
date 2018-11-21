@@ -13,6 +13,8 @@
 (defn edit-one [db op-data sid op-id op-time]
   (assoc-in db [:locales (:key op-data) (:lang op-data)] (:text op-data)))
 
+(defn mark-saved [db op-data sid op-id op-time] (assoc db :saved-locales (:locales db)))
+
 (defn rename-one [db op-data sid op-id op-time]
   (update
    db

@@ -71,7 +71,8 @@
              states
              (:locales store)
              (:query session)
-             (:matched-count store))
+             (:matched-count store)
+             (:need-save? store))
           :profile (comp-profile (:user store) (:data router))
           (<> router))
         (comp-login states))

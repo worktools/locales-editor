@@ -40,6 +40,11 @@
 
 (def mount-target (.querySelector js/document ".app"))
 
+(defn on-keydown! [event]
+  (when (and (= (.-key event) "s") (.-metaKey event))
+    (.preventDefault event)
+    (dispatch! :effect/codegen nil)))
+
 (defn render-app! [renderer]
   (renderer mount-target (comp-container @*states @*store) dispatch!))
 
@@ -55,6 +60,7 @@
    js/window
    "visibilitychange"
    (fn [] (when (and (nil? @*store) (= "visible" js/document.visibilityState)) (connect!))))
+  (.addEventListener js/window "keydown" (fn [event] (on-keydown! event)))
   (println "App started!"))
 
 (defn reload! [] (clear-cache!) (render-app! render!) (println "Code updated."))

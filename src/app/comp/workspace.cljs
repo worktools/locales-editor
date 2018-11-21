@@ -79,7 +79,7 @@
 
 (defcomp
  comp-search-box
- (states query)
+ (states query need-save?)
  (let [state (or (:data states) {:text ""})]
    (div
     {:style (merge ui/row-parted {:padding 16})}
@@ -96,7 +96,7 @@
           (d! :session/query result))))
      (=< 16 nil)
      (button
-      {:style ui/button,
+      {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
        :inner-text "Codegen",
        :on-click (fn [e d! m!] (d! :effect/codegen nil))}))
     (div
@@ -116,8 +116,8 @@
 
 (defcomp
  comp-workspace
- (states locales query total)
+ (states locales query total need-save?)
  (div
   {:style (merge ui/flex ui/column {:overflow :auto})}
-  (cursor-> :search comp-search-box states query)
+  (cursor-> :search comp-search-box states query need-save?)
   (cursor-> :table comp-lang-table states locales total)))

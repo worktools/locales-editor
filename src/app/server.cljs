@@ -20,7 +20,7 @@
             ["chalk" :as chalk])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
-(def initial-db
+(defonce initial-db
   (let [filepath (:storage-path node-config/env)]
     (if (fs/existsSync filepath)
       (do
@@ -33,8 +33,8 @@
             (<<
              "Schema version(~{schema-version}) does not match version of cli(~{cli-version}). Existing!"))
            (.exit js/process 1))
-         storage))
-      schema/database)))
+         (assoc storage :saved-locales (:locales storage))))
+      (schema/database))))
 
 (defonce *reel (atom (merge reel-schema {:base initial-db, :db initial-db})))
 
@@ -68,7 +68,8 @@
          (string/join "\n"))))
 
 (defn persist-db! []
-  (let [file-content (write-edn (assoc (:db @*reel) :sessions {}))
+  (let [file-content (write-edn
+                      (-> (:db @*reel) (assoc :sessions {}) (dissoc :saved-locales)))
         now (js/Date.)
         storage-path (:storage-path node-config/env)
         backup-path (path/join
@@ -79,7 +80,7 @@
     (fs/writeFileSync storage-path file-content)
     (cp/execSync (str "mkdir -p " (path/dirname backup-path)))
     (fs/writeFileSync backup-path file-content)
-    (println "Saved file in" storage-path "and saved backup in" backup-path)))
+    (println "Saved file in" storage-path)))
 
 (defn generate-files! []
   (let [base js/process.env.PWD
@@ -88,7 +89,7 @@
         interface-file (.join path base "interface.ts")
         db (:db @*reel)
         locales (:locales db)]
-    (println "Genrate files.")
+    (println "Found" (count locales) "entries." "Genrating files...")
     (fs/writeFileSync
      en-file
      (str
@@ -115,11 +116,11 @@
 
 (defn dispatch! [op op-data sid]
   (let [op-id (.generate shortid), op-time (.valueOf (js/Date.))]
-    (if dev? (println "Dispatch!" (str op) op-data sid))
+    (when dev? (println "Dispatch!" (str op) op-data sid))
     (try
      (cond
        (= op :effect/persist) (persist-db!)
-       (= op :effect/codegen) (generate-files!)
+       (= op :effect/codegen) (do (generate-files!) (dispatch! :locale/mark-saved nil sid))
        :else
          (let [new-reel (reel-reducer @*reel updater op op-data sid op-id op-time)]
            (reset! *reel new-reel)))
@@ -138,7 +139,7 @@
 (defn main! []
   (run-server! #(dispatch! %1 %2 %3) (:port config/site))
   (render-loop!)
-  (.on js/process "SIGINT" on-exit!)
+  (comment .on js/process "SIGINT" on-exit!)
   (js/setInterval #(persist-db!) (* 60 1000 10))
   (println
    "Server started. Open editer on"

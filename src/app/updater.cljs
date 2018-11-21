@@ -12,6 +12,7 @@
             :session/connect session/connect
             :session/disconnect session/disconnect
             :session/remove-message session/remove-message
+            :session/notify session/notify
             :session/query session/query
             :user/log-in user/log-in
             :user/sign-up user/sign-up
@@ -21,5 +22,6 @@
             :locale/edit-one locale/edit-one
             :locale/rename-one locale/rename-one
             :locale/rm-one locale/rm-one
+            :locale/mark-saved locale/mark-saved
             (do (println "Unknown op:" op) identity))]
     (f db op-data sid op-id op-time)))
