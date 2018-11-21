@@ -19,19 +19,22 @@
  (db session records)
  (let [logged-in? (some? (:user-id session))
        router (:router session)
+       matched-locale-pairs (->> (:locales db)
+                                 (filter
+                                  (fn [[k info]]
+                                    (if (some? (:query session))
+                                      (or (find-chunk k (:query session))
+                                          (find-chunk (get info "zhCN") (:query session))
+                                          (find-chunk (get info "enUS") (:query session)))
+                                      true))))
        base-data {:logged-in? logged-in?,
                   :session session,
                   :reel-length (count records),
-                  :locales (let [locales (:locales db)]
-                    (->> locales
-                         (filter
-                          (fn [[k info]]
-                            (if (some? (:query session))
-                              (or (find-chunk k (:query session))
-                                  (find-chunk (get info "zhCN") (:query session))
-                                  (find-chunk (get info "enUS") (:query session)))
-                              true)))
-                         (into {})))}]
+                  :locales (->> matched-locale-pairs
+                                (sort-by (fn [[k info]] (count k)))
+                                (take 40)
+                                (into {})),
+                  :matched-count (count matched-locale-pairs)}]
    (merge
     base-data
     (if logged-in?

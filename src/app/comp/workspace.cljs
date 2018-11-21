@@ -62,18 +62,20 @@
 
 (defcomp
  comp-lang-table
- (states locales)
+ (states locales total)
  (div
   {:style (merge ui/flex {:overflow :auto, :background-color (hsl 0 0 90), :padding 8})}
   (list->
    {}
-   (->> locales (take 40) (map (fn [[k v]] [k (cursor-> k comp-locale states k v)]))))
+   (->> locales
+        (sort-by (fn [[k v]] (count k)))
+        (map (fn [[k v]] [k (cursor-> k comp-locale states k v)]))))
   (let [size (count locales)]
     (div
      {:style (merge ui/center {:padding 16})}
-     (if (> size 40)
-       (<> (str "40 locales displayed, " (- size 40) " not shown"))
-       (<> (str "all " size " locales are displayed")))))))
+     (if (= size total)
+       (<> (str "all " size " locales are displayed"))
+       (<> (str "displaying first " size " of " total " results")))))))
 
 (defcomp
  comp-search-box
@@ -114,8 +116,8 @@
 
 (defcomp
  comp-workspace
- (states locales query)
+ (states locales query total)
  (div
   {:style (merge ui/flex ui/column {:overflow :auto})}
   (cursor-> :search comp-search-box states query)
-  (cursor-> :table comp-lang-table states locales)))
+  (cursor-> :table comp-lang-table states locales total)))

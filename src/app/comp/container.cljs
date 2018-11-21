@@ -64,7 +64,14 @@
       (comp-navigation (:logged-in? store) (:count store))
       (if (:logged-in? store)
         (case (:name router)
-          :home (cursor-> :workspace comp-workspace states (:locales store) (:query session))
+          :home
+            (cursor->
+             :workspace
+             comp-workspace
+             states
+             (:locales store)
+             (:query session)
+             (:matched-count store))
           :profile (comp-profile (:user store) (:data router))
           (<> router))
         (comp-login states))
