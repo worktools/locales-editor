@@ -26,7 +26,9 @@
   "author": "jiyinyiyong",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^2.4.1",
     "javascript-natural-sort": "^0.7.1",
+    "latest-version": "^4.0.0",
     "md5": "^2.2.1",
     "randomcolor": "^0.5.3",
     "shortid": "^2.2.14",

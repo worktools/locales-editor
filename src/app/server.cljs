@@ -15,7 +15,9 @@
             [fipp.edn :refer [pprint]]
             [clojure.string :as string]
             [favored-edn.core :refer [write-edn]]
-            ["javascript-natural-sort" :as naturalSort])
+            ["javascript-natural-sort" :as naturalSort]
+            ["latest-version" :as latest-version]
+            ["chalk" :as chalk])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (def initial-db
@@ -37,6 +39,19 @@
 (defonce *reel (atom (merge reel-schema {:base initial-db, :db initial-db})))
 
 (defonce *reader-reel (atom @*reel))
+
+(defn check-version! []
+  (let [pkg (.parse js/JSON (fs/readFileSync (path/join js/__dirname "../package.json")))
+        version (.-version pkg)]
+    (-> (latest-version (.-name pkg))
+        (.then
+         (fn [npm-version]
+           (if (= npm-version version)
+             (println "Running latest version" version)
+             (println
+              (.yellow
+               chalk
+               (<< "New version ~{npm-version} available, current one is ~{version} .")))))))))
 
 (defn lines-sorter [a b]
   (set! (.-insensitive naturalSort) true)
@@ -125,8 +140,10 @@
   (render-loop!)
   (.on js/process "SIGINT" on-exit!)
   (js/setInterval #(persist-db!) (* 60 1000 10))
-  (println "Server started.")
-  (println "Editer available on http://repo.tiye.me/chenyong/locales-editor/"))
+  (println
+   "Server started. Open editer on"
+   (.blue chalk "http://repo.tiye.me/chenyong/locales-editor/"))
+  (check-version!))
 
 (defn reload! []
   (println "Code updated.")
