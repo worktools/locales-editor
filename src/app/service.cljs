@@ -15,6 +15,7 @@
 (defn run-server! [on-action! port]
   (let [WebSocketServer (.-Server ws), wss (new WebSocketServer (js-obj "port" port))]
     (.on
+     ^js
      wss
      "connection"
      (fn [socket]

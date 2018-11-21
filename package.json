@@ -1,6 +1,6 @@
 {
   "name": "@jimengio/locales-editor",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Cumulo Workflow",
   "main": "index.js",
   "bin": {

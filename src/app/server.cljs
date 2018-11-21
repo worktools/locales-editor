@@ -10,7 +10,6 @@
             ["child_process" :as cp]
             ["path" :as path]
             [app.node-config :as node-config]
-            [app.config :refer [dev?]]
             [app.config :as config]
             [fipp.edn :refer [pprint]]
             [clojure.string :as string]
@@ -116,7 +115,7 @@
 
 (defn dispatch! [op op-data sid]
   (let [op-id (.generate shortid), op-time (.valueOf (js/Date.))]
-    (when dev? (println "Dispatch!" (str op) op-data sid))
+    (when node-config/dev? (println "Dispatch!" (str op) op-data sid))
     (try
      (cond
        (= op :effect/persist) (persist-db!)
