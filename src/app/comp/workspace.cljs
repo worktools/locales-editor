@@ -103,22 +103,6 @@
     {:style (merge ui/row-parted {:padding 16})}
     (div
      {:style {}}
-     (cursor->
-      :add
-      comp-prompt
-      states
-      {:trigger (button {:style ui/button, :inner-text "Create"})}
-      (fn [result d! m!]
-        (when (not (string/blank? result))
-          (d! :locale/add-one result)
-          (d! :session/query result))))
-     (=< 16 nil)
-     (button
-      {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
-       :inner-text "Codegen",
-       :on-click (fn [e d! m!] (d! :effect/codegen nil))}))
-    (div
-     {}
      (input
       {:value (:text state),
        :style ui/input,
@@ -127,10 +111,20 @@
        :on-keydown (fn [e d! m!]
          (when (= "Enter" (.-key (:event e))) (d! :session/query (:text state))))})
      (=< 16 nil)
-     (button
-      {:style ui/button,
-       :inner-text "Search",
-       :on-click (fn [e d! m!] (d! :session/query (:text state)))})))))
+     (cursor->
+      :add
+      comp-prompt
+      states
+      {:trigger (button {:style ui/button, :inner-text "Create"}),
+       :initial (do (println state states) (:text state))}
+      (fn [result d! m!]
+        (when (not (string/blank? result))
+          (d! :locale/add-one result)
+          (d! :session/query result)))))
+    (button
+     {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
+      :inner-text "Codegen",
+      :on-click (fn [e d! m!] (d! :effect/codegen nil))}))))
 
 (defcomp
  comp-workspace
