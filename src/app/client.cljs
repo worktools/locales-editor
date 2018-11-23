@@ -36,7 +36,7 @@
    *store
    {:url (str "ws://localhost:" (:port config/site)),
     :on-close! (fn [event] (reset! *store nil) (.error js/console "Lost connection!")),
-    :on-open! (fn [event] (simulate-login!))}))
+    :on-open! (fn [event] (comment simulate-login!))}))
 
 (def mount-target (.querySelector js/document ".app"))
 

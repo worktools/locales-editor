@@ -21,7 +21,8 @@
   (div
    {:on-click (action-> :router/change {:name :home}), :style {:cursor :pointer}}
    (<> (:title config/site) nil))
-  (div
+  (comment
+   div
    {:style {:cursor "pointer"}, :on-click (action-> :router/change {:name :profile})}
    (<> (if logged-in? "Me" "Guest"))
    (=< 8 nil)

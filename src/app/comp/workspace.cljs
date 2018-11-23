@@ -80,24 +80,25 @@
 
 (defcomp
  comp-lang-table
- (states locales total)
+ (states locales total query)
  (div
   {:style (merge ui/flex {:overflow :auto, :background-color (hsl 0 0 90), :padding 8})}
+  (let [size (count locales)]
+    (div
+     {:style (merge ui/row-center {:padding 16, :font-size 16})}
+     (if (not (string/blank? query)) (<> (<< "搜索 ~(pr-str query), ")))
+     (if (= size total)
+       (<> (<< "全部 ~{size} 条数据已显示"))
+       (<> (<< "已显示 ~{size} 条数据, 总共 ~{total} 条")))))
   (list->
    {}
    (->> locales
         (sort-by (fn [[k v]] (count k)))
-        (map (fn [[k v]] [k (cursor-> k comp-locale states k v)]))))
-  (let [size (count locales)]
-    (div
-     {:style (merge ui/center {:padding 16})}
-     (if (= size total)
-       (<> (str "all " size " locales are displayed"))
-       (<> (str "displaying first " size " of " total " results")))))))
+        (map (fn [[k v]] [k (cursor-> k comp-locale states k v)]))))))
 
 (defcomp
  comp-search-box
- (states query need-save?)
+ (states need-save?)
  (let [state (or (:data states) {:text ""})]
    (div
     {:style (merge ui/row-parted {:padding 16})}
@@ -106,7 +107,7 @@
      (input
       {:value (:text state),
        :style ui/input,
-       :placeholder query,
+       :placeholder "回车键搜索",
        :on-input (fn [e d! m!] (m! (assoc state :text (:value e)))),
        :on-keydown (fn [e d! m!]
          (when (= "Enter" (.-key (:event e))) (d! :session/query (:text state))))})
@@ -115,7 +116,7 @@
       :add
       comp-prompt
       states
-      {:trigger (button {:style ui/button, :inner-text "Create"}),
+      {:trigger (button {:style ui/button, :inner-text "添加"}),
        :initial (do (println state states) (:text state))}
       (fn [result d! m!]
         (when (not (string/blank? result))
@@ -123,7 +124,7 @@
           (d! :session/query result)))))
     (button
      {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
-      :inner-text "Codegen",
+      :inner-text "生成文件",
       :on-click (fn [e d! m!] (d! :effect/codegen nil))}))))
 
 (defcomp
@@ -131,5 +132,5 @@
  (states locales query total need-save?)
  (div
   {:style (merge ui/flex ui/column {:overflow :auto})}
-  (cursor-> :search comp-search-box states query need-save?)
-  (cursor-> :table comp-lang-table states locales total)))
+  (cursor-> :search comp-search-box states need-save?)
+  (cursor-> :table comp-lang-table states locales total query)))
