@@ -139,7 +139,7 @@
   (run-server! #(dispatch! %1 %2 %3) (:port config/site))
   (render-loop!)
   (comment .on js/process "SIGINT" on-exit!)
-  (js/setInterval #(persist-db!) (* 60 1000 10))
+  (comment js/setInterval #(persist-db!) (* 60 1000 10))
   (println
    "Server started. Open editer on"
    (.blue chalk "http://repo.tiye.me/chenyong/locales-editor/"))

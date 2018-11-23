@@ -7,58 +7,76 @@
             [app.config :as config]
             [respo-alerts.comp.alerts :refer [comp-prompt comp-alert]]
             [clojure.string :as string]
-            [feather.core :refer [comp-i]]))
+            [feather.core :refer [comp-i comp-icon]]
+            ["copy-text-to-clipboard" :as copy!])
+  (:require-macros [clojure.core.strint :refer [<<]]))
 
 (def style-hint {:display :inline-block, :color (hsl 0 0 80), :margin "0 16px"})
 
 (defcomp
  comp-locale
  (states k v)
- (div
-  {:style (merge
-           ui/flex
-           ui/column
-           {:padding "8px 16px", :display :inline-flex, :background-color :white, :margin 8})}
-  (div
-   {:style (merge
-            ui/row-middle
-            {:min-width 240, :font-family ui/font-code, :overflow :auto})}
-   (cursor->
-    :rename
-    comp-prompt
-    states
-    {:trigger (<> k), :initial k}
-    (fn [result d! m!]
-      (when (not (string/blank? result)) (d! :locale/rename-one {:from k, :to result}))))
-   (=< 8 nil)
-   (cursor->
-    :remove
-    comp-alert
-    states
-    {:trigger (comp-i :x 14 (hsl 0 80 60))}
-    (fn [e d! m!] (d! :locale/rm-one k))))
-  (div
-   {}
-   (<> "zhCN" style-hint)
-   (cursor->
-    "zhCN"
-    comp-prompt
-    states
-    {:trigger (<> (get v "zhCN")), :initial (get v "zhCN")}
-    (fn [result d! m!]
-      (when (not (string/blank? result))
-        (d! :locale/edit-one {:lang "zhCN", :key k, :text result})))))
-  (div
-   {}
-   (<> "enUS" style-hint)
-   (cursor->
-    "enUS"
-    comp-prompt
-    states
-    {:trigger (<> (get v "enUS")), :initial (get v "enUS")}
-    (fn [result d! m!]
-      (when (not (string/blank? result))
-        (d! :locale/edit-one {:lang "enUS", :key k, :text result})))))))
+ (let [state (or (:data states) {:copied? false})]
+   (div
+    {:class-name "locale-card",
+     :style (merge
+             ui/flex
+             ui/column
+             {:padding "8px 16px",
+              :display :inline-flex,
+              :background-color :white,
+              :margin 8}
+             (if (:copied? state)
+               {:transform "scale(1.08)", :box-shadow (<< "0 0 3px ~(hsl 0 0 0 0.2)")}))}
+    (div
+     {:style (merge
+              ui/row-parted
+              {:min-width 240, :font-family ui/font-code, :overflow :auto})}
+     (div
+      {:style ui/row-middle}
+      (cursor->
+       :rename
+       comp-prompt
+       states
+       {:trigger (<> k), :initial k}
+       (fn [result d! m!]
+         (when (not (string/blank? result)) (d! :locale/rename-one {:from k, :to result}))))
+      (=< 8 nil)
+      (comp-icon
+       :copy
+       {:font-size 14, :color (hsl 0 80 80), :cursor :pointer}
+       (fn [e d! m!]
+         (copy! (<< "lang.~{k}"))
+         (m! (assoc state :copied? true))
+         (js/setTimeout (fn [] (m! (assoc state :copied? false))) 600))))
+     (cursor->
+      :remove
+      comp-alert
+      states
+      {:trigger (comp-i :x 14 (hsl 0 80 80)), :text "确认要删除这个字段?"}
+      (fn [e d! m!] (d! :locale/rm-one k))))
+    (div
+     {}
+     (<> "zhCN" style-hint)
+     (cursor->
+      "zhCN"
+      comp-prompt
+      states
+      {:trigger (<> (get v "zhCN")), :initial (get v "zhCN")}
+      (fn [result d! m!]
+        (when (not (string/blank? result))
+          (d! :locale/edit-one {:lang "zhCN", :key k, :text result})))))
+    (div
+     {}
+     (<> "enUS" style-hint)
+     (cursor->
+      "enUS"
+      comp-prompt
+      states
+      {:trigger (<> (get v "enUS")), :initial (get v "enUS")}
+      (fn [result d! m!]
+        (when (not (string/blank? result))
+          (d! :locale/edit-one {:lang "enUS", :key k, :text result}))))))))
 
 (defcomp
  comp-lang-table
