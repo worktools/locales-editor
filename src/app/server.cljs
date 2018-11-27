@@ -16,7 +16,9 @@
             [favored-edn.core :refer [write-edn]]
             ["javascript-natural-sort" :as naturalSort]
             ["latest-version" :as latest-version]
-            ["chalk" :as chalk])
+            ["chalk" :as chalk]
+            ["axios" :as axios]
+            ["md5" :as md5])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (defonce initial-db
@@ -113,6 +115,38 @@
         "\n}\n")))
     (persist-db!)))
 
+(defn translate-sentense! [text cb]
+  (let [q (js/encodeURI text)
+        salt (rand-int 100)
+        app-key (-> @*reel :db :settings :app-id)
+        app-secret (-> @*reel :db :settings :app-secret)
+        sign (string/upper-case (md5 (str app-key text salt app-secret)))
+        url (<<
+             "http://openapi.youdao.com/api?q=~{q}&from=EN&to=zh_CHS&appKey=~{app-key}&salt=~{salt}&sign=~{sign}")]
+    (when (or (nil? app-key) (nil? app-secret))
+      (println "app-key and app-secret are required to use translation!")
+      (js/process.exit 1))
+    (comment println "data" salt (str app-key text salt app-secret) app-key app-secret sign)
+    (comment -> (.get axios url) (.then (fn [result] (.log js/console (.-data result)))))
+    (println url)
+    (-> axios
+        (.get
+         "http://openapi.youdao.com/api"
+         (clj->js
+          {:params {:q text,
+                    :from "zh-CHS",
+                    :to "EN",
+                    :appKey app-key,
+                    :salt salt,
+                    :sign sign}}))
+        (.then
+         (fn [response]
+           (let [data (js->clj (.-data response) :keywordize-keys true)]
+             (comment println "data" data)
+             (if (= "0" (:errorCode data))
+               (cb (-> data :translation first))
+               (js/console.warn "Request failed:" data))))))))
+
 (defn dispatch! [op op-data sid]
   (let [op-id (.generate shortid), op-time (.valueOf (js/Date.))]
     (when node-config/dev? (println "Dispatch!" (str op) op-data sid))
@@ -120,6 +154,12 @@
      (cond
        (= op :effect/persist) (persist-db!)
        (= op :effect/codegen) (do (generate-files!) (dispatch! :locale/mark-saved nil sid))
+       (= op :effect/translate)
+         (translate-sentense!
+          (last op-data)
+          (fn [result]
+            (println "translated:" (first op-data) result)
+            (dispatch! :session/store-translation {:key (first op-data), :text result} sid)))
        :else
          (let [new-reel (reel-reducer @*reel updater op op-data sid op-id op-time)]
            (reset! *reel new-reel)))

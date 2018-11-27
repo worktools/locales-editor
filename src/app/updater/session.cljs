@@ -14,3 +14,6 @@
 
 (defn remove-message [db op-data sid op-id op-time]
   (update-in db [:sessions sid :messages] (fn [messages] (dissoc messages (:id op-data)))))
+
+(defn store-translation [db op-data sid op-id op-time]
+  (assoc-in db [:sessions sid :translation] op-data))

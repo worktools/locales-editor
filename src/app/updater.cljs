@@ -14,6 +14,7 @@
             :session/remove-message session/remove-message
             :session/notify session/notify
             :session/query session/query
+            :session/store-translation session/store-translation
             :user/log-in user/log-in
             :user/sign-up user/sign-up
             :user/log-out user/log-out
@@ -23,5 +24,6 @@
             :locale/rename-one locale/rename-one
             :locale/rm-one locale/rm-one
             :locale/mark-saved locale/mark-saved
+            :locale/accept-translation locale/accept-translation
             (do (println "Unknown op:" op) identity))]
     (f db op-data sid op-id op-time)))

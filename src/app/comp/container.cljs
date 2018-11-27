@@ -13,7 +13,8 @@
             [app.config :refer [dev?]]
             [app.schema :as schema]
             [app.config :as config]
-            [app.comp.workspace :refer [comp-workspace]]))
+            [app.comp.workspace :refer [comp-workspace]]
+            [app.comp.translation :refer [comp-translation]]))
 
 (defcomp
  comp-offline
@@ -76,6 +77,7 @@
           :profile (comp-profile (:user store) (:data router))
           (<> router))
         (comp-login states))
+      (when (some? (:translation session)) (comp-translation (:translation session)))
       (comment comp-status-color (:color store))
       (when dev? (comp-inspect "Store" store {:bottom 40, :right 0, :max-width "100%"}))
       (comp-messages

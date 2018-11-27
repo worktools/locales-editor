@@ -1,6 +1,11 @@
 
 (ns app.updater.locale )
 
+(defn accept-translation [db op-data sid op-id op-time]
+  (-> db
+      (assoc-in [:locales (:key op-data) "enUS"] (:text op-data))
+      (assoc-in [:sessions sid :translation] nil)))
+
 (defn add-one [db op-data sid op-id op-time]
   (update
    db

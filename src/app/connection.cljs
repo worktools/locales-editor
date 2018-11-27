@@ -1,6 +1,8 @@
 
 (ns app.connection
-  (:require [cljs.reader :as reader] [recollect.patch :refer [patch-twig]]))
+  (:require [cljs.reader :as reader]
+            [recollect.patch :refer [patch-twig]]
+            [app.config :refer [dev?]]))
 
 (defonce *global-ws (atom nil))
 
@@ -25,5 +27,5 @@
      ws.onmessage
      (fn [event]
        (let [changes (reader/read-string event.data)]
-         (.log js/console "Changes" (clj->js changes))
+         (when dev? (.log js/console "Changes" (clj->js changes)))
          (reset! *store (patch-twig @*store changes)))))))

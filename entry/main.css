@@ -6,6 +6,7 @@ body {
 
 body * {
   box-sizing: border-box;
+  outline: none;
 }
 
 .dev-shadows,
@@ -13,11 +14,11 @@ body * {
   box-shadow: 0 0 1px hsla(0,0%,0%,0.3);
 }
 
-.locale-card i {
+.locale-card .minor {
   opacity: 0;
 }
 
-.locale-card:hover i {
+.locale-card:hover .minor {
   opacity: 1;
 }
 

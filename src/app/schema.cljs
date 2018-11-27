@@ -3,13 +3,16 @@
 
 (def router {:name nil, :title nil, :data {}, :router nil})
 
+(def translation {:key nil, :text nil})
+
 (def session
   {:user-id nil,
    :id nil,
    :nickname nil,
    :query nil,
    :router (do router {:name :home, :data nil, :router nil}),
-   :messages {}})
+   :messages {},
+   :translation (do translation nil)})
 
 (def user {:name nil, :id nil, :nickname nil, :avatar nil, :password nil})
 
@@ -18,4 +21,5 @@
    :users (do user {}),
    :locales {},
    :saved-locales {},
-   :schema {:version "0.2.x"}})
+   :schema {:version "0.2.x"},
+   :settings {:app-key nil, :app-secret nil}})

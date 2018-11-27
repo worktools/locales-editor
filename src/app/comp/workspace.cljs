@@ -31,7 +31,10 @@
     (div
      {:style (merge
               ui/row-parted
-              {:min-width 240, :font-family ui/font-code, :overflow :auto})}
+              {:min-width 240,
+               :font-family ui/font-code,
+               :overflow :auto,
+               :color (hsl 0 0 70)})}
      (div
       {:style ui/row-middle}
       (cursor->
@@ -53,7 +56,8 @@
       :remove
       comp-alert
       states
-      {:trigger (comp-i :x 14 (hsl 0 80 80)), :text "确认要删除这个字段?"}
+      {:trigger (span {:class-name "minor"} (comp-i :x 14 (hsl 0 80 80))),
+       :text "确认要删除这个字段?"}
       (fn [e d! m!] (d! :locale/rm-one k))))
     (div
      {}
@@ -67,7 +71,7 @@
         (when (not (string/blank? result))
           (d! :locale/edit-one {:lang "zhCN", :key k, :text result})))))
     (div
-     {}
+     {:style ui/row-middle}
      (<> "enUS" style-hint)
      (cursor->
       "enUS"
@@ -76,7 +80,13 @@
       {:trigger (<> (get v "enUS")), :initial (get v "enUS")}
       (fn [result d! m!]
         (when (not (string/blank? result))
-          (d! :locale/edit-one {:lang "enUS", :key k, :text result}))))))))
+          (d! :locale/edit-one {:lang "enUS", :key k, :text result}))))
+     (=< 8 nil)
+     (do
+      (println "value" v)
+      (span
+       {:on-click (fn [e d! m!] (d! :effect/translate [k (get v "zhCN")]))}
+       (comp-icon :globe {:font-size 14, :color (hsl 0 0 80), :cursor :pointer} nil)))))))
 
 (defcomp
  comp-lang-table
@@ -101,7 +111,9 @@
  (states need-save?)
  (let [state (or (:data states) {:text ""})]
    (div
-    {:style (merge ui/row-parted {:padding 16})}
+    {:style (merge
+             ui/row-parted
+             {:padding 16, :border-bottom (<< "1px solid ~(hsl 0 0 80)")})}
     (div
      {:style {}}
      (input
@@ -116,8 +128,7 @@
       :add
       comp-prompt
       states
-      {:trigger (button {:style ui/button, :inner-text "添加"}),
-       :initial (do (println state states) (:text state))}
+      {:trigger (button {:style ui/button, :inner-text "添加"}), :initial (:text state)}
       (fn [result d! m!]
         (when (not (string/blank? result))
           (d! :locale/add-one result)
