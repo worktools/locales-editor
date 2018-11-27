@@ -19,7 +19,8 @@
             ["chalk" :as chalk]
             ["axios" :as axios]
             ["md5" :as md5]
-            ["gaze" :as gaze])
+            ["gaze" :as gaze]
+            [clojure.set :refer [intersection difference]])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (defonce initial-db
@@ -56,6 +57,8 @@
               (.yellow
                chalk
                (<< "New version ~{npm-version} available, current one is ~{version} .")))))))))
+
+(defn format-keys [xs] (if (empty? xs) "" (str "(" (string/join ", " xs) ")")))
 
 (defn lines-sorter [a b]
   (set! (.-insensitive naturalSort) true)
@@ -119,6 +122,20 @@
         "\n}\n")))
     (persist-db!)))
 
+(defn show-changes! [locales saved-locales]
+  (let [new-keys (set (keys locales))
+        old-keys (set (keys saved-locales))
+        common-keys (intersection new-keys old-keys)
+        changed-keys (->> common-keys
+                          (filter (fn [k] (not= (get locales k) (get saved-locales k)))))
+        added-keys (difference new-keys old-keys)
+        removed-keys (difference old-keys new-keys)]
+    (println
+     (do
+      format-keys
+      (<<
+       "Added ~(count added-keys) keys~(format-keys added-keys), removed ~(count removed-keys) keys~(format-keys removed-keys), modified ~(count changed-keys) keys~(format-keys changed-keys).")))))
+
 (defn translate-sentense! [text cb]
   (let [q (js/encodeURI text)
         salt (rand-int 100)
@@ -152,12 +169,16 @@
                (js/console.warn "Request failed:" data))))))))
 
 (defn dispatch! [op op-data sid]
-  (let [op-id (.generate shortid), op-time (.valueOf (js/Date.))]
+  (let [op-id (.generate shortid), op-time (.valueOf (js/Date.)), db (:db @*reel)]
     (when node-config/dev? (println "Dispatch!" (str op) (subs (pr-str op-data) 0 140)))
     (try
      (cond
        (= op :effect/persist) (persist-db!)
-       (= op :effect/codegen) (do (generate-files!) (dispatch! :locale/mark-saved nil sid))
+       (= op :effect/codegen)
+         (do
+          (show-changes! (:locales db) (:saved-locales db))
+          (generate-files!)
+          (dispatch! :locale/mark-saved nil sid))
        (= op :effect/translate)
          (translate-sentense!
           (last op-data)
@@ -196,6 +217,7 @@
          (.on ^js watcher "changed" (fn [_] (on-file-change! filepath))))))))
 
 (defn main! []
+  (when (= js/process.env.op "compile") (generate-files!) (js/process.exit 0))
   (run-server! #(dispatch! %1 %2 %3) (:port config/site))
   (render-loop!)
   (comment .on js/process "SIGINT" on-exit!)
