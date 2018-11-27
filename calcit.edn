@@ -8957,7 +8957,7 @@
                       :type :expr, :by "root", :at 1542769364933, :id "yBs-GYZ1S2"
                       :data {
                        "T" {:type :leaf, :by "root", :at 1542769364646, :text "<<", :id "-FuXBfdhS"}
-                       "j" {:type :leaf, :by "root", :at 1542769476247, :text "\"New version ~{npm-version} available, current one is ~{version} .", :id "S3rHYHDzkz"}
+                       "j" {:type :leaf, :by "root", :at 1543326605771, :text "\"New version ~{npm-version} available, current one is ~{version} . Please upgrade!", :id "S3rHYHDzkz"}
                       }
                      }
                     }

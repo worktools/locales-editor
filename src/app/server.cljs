@@ -56,7 +56,8 @@
              (println
               (.yellow
                chalk
-               (<< "New version ~{npm-version} available, current one is ~{version} .")))))))))
+               (<<
+                "New version ~{npm-version} available, current one is ~{version} . Please upgrade!")))))))))
 
 (defn format-keys [xs] (if (empty? xs) "" (str "(" (string/join ", " xs) ")")))
 
