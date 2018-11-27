@@ -128,7 +128,7 @@
       (js/process.exit 1))
     (comment println "data" salt (str app-key text salt app-secret) app-key app-secret sign)
     (comment -> (.get axios url) (.then (fn [result] (.log js/console (.-data result)))))
-    (println url)
+    (comment println url)
     (-> axios
         (.get
          "http://openapi.youdao.com/api"
@@ -158,7 +158,6 @@
          (translate-sentense!
           (last op-data)
           (fn [result]
-            (println "translated:" (first op-data) result)
             (dispatch! :session/store-translation {:key (first op-data), :text result} sid)))
        :else
          (let [new-reel (reel-reducer @*reel updater op op-data sid op-id op-time)]
