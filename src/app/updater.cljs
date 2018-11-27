@@ -25,5 +25,6 @@
             :locale/rm-one locale/rm-one
             :locale/mark-saved locale/mark-saved
             :locale/accept-translation locale/accept-translation
+            :locale/checkout locale/checkout
             (do (println "Unknown op:" op) identity))]
     (f db op-data sid op-id op-time)))

@@ -18,7 +18,8 @@
             ["latest-version" :as latest-version]
             ["chalk" :as chalk]
             ["axios" :as axios]
-            ["md5" :as md5])
+            ["md5" :as md5]
+            ["gaze" :as gaze])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (defonce initial-db
@@ -40,6 +41,8 @@
 (defonce *reel (atom (merge reel-schema {:base initial-db, :db initial-db})))
 
 (defonce *reader-reel (atom @*reel))
+
+(defonce *storage-md5 (atom nil))
 
 (defn check-version! []
   (let [pkg (.parse js/JSON (fs/readFileSync (path/join js/__dirname "../package.json")))
@@ -78,6 +81,7 @@
                      "backups"
                      (str (inc (.getMonth now)))
                      (str (.getDate now) "-storage.edn"))]
+    (reset! *storage-md5 (md5 file-content))
     (fs/writeFileSync storage-path file-content)
     (cp/execSync (str "mkdir -p " (path/dirname backup-path)))
     (fs/writeFileSync backup-path file-content)
@@ -149,7 +153,7 @@
 
 (defn dispatch! [op op-data sid]
   (let [op-id (.generate shortid), op-time (.valueOf (js/Date.))]
-    (when node-config/dev? (println "Dispatch!" (str op) op-data sid))
+    (when node-config/dev? (println "Dispatch!" (str op) (subs (pr-str op-data) 0 140)))
     (try
      (cond
        (= op :effect/persist) (persist-db!)
@@ -169,10 +173,27 @@
   (println "exit code is:" (pr-str code))
   (.exit js/process))
 
+(defn on-file-change! [filepath]
+  (let [content (fs/readFileSync filepath "utf8"), new-md5 (md5 content)]
+    (when (not= new-md5 @*storage-md5)
+      (println "File changed by comparing md5")
+      (reset! *storage-md5 new-md5)
+      (dispatch! :locale/checkout (:locales (read-string content)) nil))))
+
 (defn render-loop! []
   (if (not (identical? @*reader-reel @*reel))
     (do (reset! *reader-reel @*reel) (sync-clients! @*reader-reel)))
   (js/setTimeout render-loop! 200))
+
+(defn watch-storage! []
+  (let [filepath (:storage-path node-config/env)]
+    (reset! *storage-md5 (md5 (fs/readFileSync filepath "utf8")))
+    (gaze
+     filepath
+     (fn [error watcher]
+       (if (some? error)
+         (js/console.log error)
+         (.on ^js watcher "changed" (fn [_] (on-file-change! filepath))))))))
 
 (defn main! []
   (run-server! #(dispatch! %1 %2 %3) (:port config/site))
@@ -182,7 +203,8 @@
   (println
    "Server started. Open editer on"
    (.blue chalk "http://repo.tiye.me/chenyong/locales-editor/"))
-  (check-version!))
+  (check-version!)
+  (watch-storage!))
 
 (defn reload! []
   (println "Code updated.")
