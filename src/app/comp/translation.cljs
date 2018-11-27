@@ -30,7 +30,7 @@
     {}
     (button
      {:style ui/button,
-      :inner-text "丢弃",
+      :inner-text "关闭",
       :on-click (fn [e d! m!] (d! :session/store-translation nil))})
     (=< 8 nil)
     (button

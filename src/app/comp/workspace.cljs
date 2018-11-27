@@ -99,7 +99,13 @@
      (if (not (string/blank? query)) (<> (<< "搜索 ~(pr-str query), ")))
      (if (= size total)
        (<> (<< "全部 ~{size} 条数据已显示"))
-       (<> (<< "已显示 ~{size} 条数据, 总共 ~{total} 条")))))
+       (<> (<< "已显示 ~{size} 条数据, 总共 ~{total} 条")))
+     (=< 8 nil)
+     (if (some? query)
+       (button
+        {:style ui/button,
+         :inner-text "清除",
+         :on-click (fn [e d! m!] (d! :session/query nil))}))))
   (list->
    {}
    (->> locales
@@ -116,14 +122,6 @@
              {:padding 16, :border-bottom (<< "1px solid ~(hsl 0 0 80)")})}
     (div
      {:style {}}
-     (input
-      {:value (:text state),
-       :style ui/input,
-       :placeholder "回车键搜索",
-       :on-input (fn [e d! m!] (m! (assoc state :text (:value e)))),
-       :on-keydown (fn [e d! m!]
-         (when (= "Enter" (.-key (:event e))) (d! :session/query (:text state))))})
-     (=< 16 nil)
      (cursor->
       :add
       comp-prompt
@@ -132,7 +130,15 @@
       (fn [result d! m!]
         (when (not (string/blank? result))
           (d! :locale/add-one result)
-          (d! :session/query result)))))
+          (d! :session/query result))))
+     (=< 16 nil)
+     (input
+      {:value (:text state),
+       :style ui/input,
+       :placeholder "回车键搜索",
+       :on-input (fn [e d! m!] (m! (assoc state :text (:value e)))),
+       :on-keydown (fn [e d! m!]
+         (when (= "Enter" (.-key (:event e))) (d! :session/query (:text state))))}))
     (button
      {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
       :inner-text "生成文件",
