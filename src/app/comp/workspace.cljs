@@ -49,7 +49,7 @@
        :copy
        {:font-size 14, :color (hsl 0 80 80), :cursor :pointer}
        (fn [e d! m!]
-         (copy! (<< "lang.~{k}"))
+         (copy! (<< "~{k}"))
          (m! (assoc state :copied? true))
          (js/setTimeout (fn [] (m! (assoc state :copied? false))) 600))))
      (cursor->
@@ -82,11 +82,9 @@
         (when (not (string/blank? result))
           (d! :locale/edit-one {:lang "enUS", :key k, :text result}))))
      (=< 8 nil)
-     (do
-      (println "value" v)
-      (span
-       {:on-click (fn [e d! m!] (d! :effect/translate [k (get v "zhCN")]))}
-       (comp-icon :globe {:font-size 14, :color (hsl 0 0 80), :cursor :pointer} nil)))))))
+     (span
+      {:on-click (fn [e d! m!] (d! :effect/translate [k (get v "zhCN")]))}
+      (comp-icon :globe {:font-size 14, :color (hsl 0 0 80), :cursor :pointer} nil))))))
 
 (defcomp
  comp-lang-table
@@ -126,7 +124,8 @@
       :add
       comp-prompt
       states
-      {:trigger (button {:style ui/button, :inner-text "添加"}), :initial (:text state)}
+      {:trigger (button {:style ui/button, :class-name "add-button", :inner-text "添加"}),
+       :initial (:text state)}
       (fn [result d! m!]
         (when (not (string/blank? result))
           (d! :locale/add-one result)

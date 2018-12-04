@@ -41,9 +41,14 @@
 (def mount-target (.querySelector js/document ".app"))
 
 (defn on-keydown! [event]
-  (when (and (= (.-key event) "s") (.-metaKey event))
-    (.preventDefault event)
-    (dispatch! :effect/codegen nil)))
+  (js/console.log event)
+  (cond
+    (and (= (.-key event) "s") (.-metaKey event))
+      (do (.preventDefault event) (dispatch! :effect/codegen nil))
+    (and (= (.-key event) "i") (.-metaKey event))
+      (let [target (js/document.querySelector ".add-button")]
+        (js/console.log target)
+        (.click target))))
 
 (defn render-app! [renderer]
   (renderer mount-target (comp-container @*states @*store) dispatch!))
