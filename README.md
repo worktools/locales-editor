@@ -6,6 +6,8 @@ A tiny tool to for generating locales.
 
 ### Usage
 
+![npm](https://img.shields.io/npm/v/@jimengio/locales-editor.svg)
+
 ```bash
 yarn global add @jimengio/locales-editor
 open http://repo.tiye.me/chenyong/locales-editor/
