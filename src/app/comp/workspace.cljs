@@ -124,7 +124,11 @@
       :add
       comp-prompt
       states
-      {:trigger (button {:style ui/button, :class-name "add-button", :inner-text "添加"}),
+      {:trigger (button
+                 {:style ui/button,
+                  :class-name "add-button",
+                  :inner-text "添加",
+                  :title "快捷键 Command i"}),
        :initial (:text state)}
       (fn [result d! m!]
         (when (not (string/blank? result))
@@ -141,7 +145,8 @@
     (button
      {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
       :inner-text "生成文件",
-      :on-click (fn [e d! m!] (d! :effect/codegen nil))}))))
+      :on-click (fn [e d! m!] (d! :effect/codegen nil)),
+      :title "快捷键 Command s"}))))
 
 (defcomp
  comp-workspace

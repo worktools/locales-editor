@@ -97,30 +97,27 @@
         zh-file (.join path base "zhCN.ts")
         interface-file (.join path base "interface.ts")
         db (:db @*reel)
-        locales (:locales db)]
+        locales (:locales db)
+        en-content (str
+                    "import { ILang } from \"./interface\";\nexport const enUS: ILang = {\n"
+                    (get-local-file locales "enUS")
+                    "\n};\n")
+        zh-content (str
+                    "import { ILang } from \"./interface\";\nexport const zhCN: ILang = {\n"
+                    (get-local-file locales "zhCN")
+                    "\n};\n")
+        interface-content (let [locale-keys (keys locales)]
+                            (str
+                             "export interface ILang {\n"
+                             (->> locale-keys
+                                  (map (fn [k] (str "  " k ": string;")))
+                                  (sort lines-sorter)
+                                  (string/join "\n"))
+                             "\n}\n"))]
     (println "Found" (count locales) "entries." "Genrating files...")
-    (fs/writeFileSync
-     en-file
-     (str
-      "import { ILang } from \"./interface\";\nexport const enUS: ILang = {\n"
-      (get-local-file locales "enUS")
-      "\n};\n"))
-    (fs/writeFileSync
-     zh-file
-     (str
-      "import { ILang } from \"./interface\";\nexport const zhCN: ILang = {\n"
-      (get-local-file locales "zhCN")
-      "\n};\n"))
-    (fs/writeFileSync
-     interface-file
-     (let [locale-keys (keys locales)]
-       (str
-        "export interface ILang {\n"
-        (->> locale-keys
-             (map (fn [k] (str "  " k ": string;")))
-             (sort lines-sorter)
-             (string/join "\n"))
-        "\n}\n")))
+    (fs/writeFileSync interface-file interface-content)
+    (fs/writeFileSync en-file en-content)
+    (fs/writeFileSync zh-file zh-content)
     (persist-db!)))
 
 (defn show-changes! [locales saved-locales]
