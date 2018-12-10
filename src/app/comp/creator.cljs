@@ -37,6 +37,7 @@
      "zhCN"
      (input
       {:style (merge ui/input {:width 240}),
+       :class-name "zh-input",
        :value zh,
        :on-input (fn [e d! m!] (m! (assoc state :zh-text (:value e))))}))
     (render-field

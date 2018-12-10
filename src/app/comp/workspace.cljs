@@ -127,7 +127,13 @@
        :class-name "add-button",
        :inner-text "添加",
        :title "快捷键 Command i",
-       :on-click (fn [e d! m!] (m! (assoc state :editing? true)))})
+       :on-click (fn [e d! m!]
+         (m! (assoc state :editing? true))
+         (js/setTimeout
+          (fn []
+            (let [target (js/document.querySelector ".zh-input")]
+              (if (some? target) (.focus target))))
+          200))})
      (=< 16 nil)
      (input
       {:value (:text state),
