@@ -78,7 +78,9 @@
           :profile (comp-profile (:user store) (:data router))
           (<> router))
         (comp-login states))
-      (when (some? (:translation session)) (comp-translation (:translation session)))
+      (let [translation (:translation session)]
+        (when (and (some? translation) (not (empty? (:key translation))))
+          (comp-translation (:translation session))))
       (comment comp-status-color (:color store))
       (when dev? (comp-inspect "Store" store {:bottom 40, :right 0, :max-width "100%"}))
       (comp-messages

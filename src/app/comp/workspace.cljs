@@ -136,11 +136,20 @@
        :on-input (fn [e d! m!] (m! (assoc state :text (:value e)))),
        :on-keydown (fn [e d! m!]
          (when (= "Enter" (.-key (:event e))) (d! :session/query (:text state))))}))
-    (button
-     {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
-      :inner-text "生成文件",
-      :on-click (fn [e d! m!] (d! :effect/codegen nil)),
-      :title "快捷键 Command s"})
+    (div
+     {}
+     (when need-save?
+       (button
+        {:style (merge ui/button),
+         :inner-text "回滚",
+         :on-click (fn [e d! m!] (d! :locale/rollback nil)),
+         :title "回滚修改到已经保存的版本"}))
+     (=< 16 nil)
+     (button
+      {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
+       :inner-text "生成文件",
+       :on-click (fn [e d! m!] (d! :effect/codegen nil)),
+       :title "快捷键 Command s"}))
     (if (:editing? state)
       (comp-dialog
        (fn [m!] (m! %cursor (assoc state :editing? false)))

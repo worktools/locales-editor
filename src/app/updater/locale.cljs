@@ -32,3 +32,5 @@
 
 (defn rm-one [db op-data sid op-id op-time]
   (update db :locales (fn [locales] (dissoc locales op-data))))
+
+(defn rollback [db op-data sid op-id op-time] (assoc db :locales (:saved-locales db)))

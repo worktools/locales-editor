@@ -26,5 +26,6 @@
             :locale/accept-translation locale/accept-translation
             :locale/checkout locale/checkout
             :locale/create-locale locale/create-locale
+            :locale/rollback locale/rollback
             (do (println "Unknown op:" op) identity))]
     (f db op-data sid op-id op-time)))

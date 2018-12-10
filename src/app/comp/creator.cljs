@@ -52,17 +52,18 @@
        {:style {:cursor :pointer},
         :on-click (fn [e d! m!] (d! :effect/translate [key-text zh]))}
        (comp-i :globe 14 (hsl 200 80 60)))))
-    (if (= key-text (:key translation))
-      (div
-       {:style ui/row-parted}
-       (span {})
+    (if (some? translation)
+      (render-field
+       ""
        (div
         {:style ui/row-middle}
         (<> (:text translation))
         (=< 8 nil)
         (span
          {:style {:cursor :pointer},
-          :on-click (fn [e d! m!] (m! (assoc state :en-text (:text translation))))}
+          :on-click (fn [e d! m!]
+            (m! (assoc state :en-text (:text translation)))
+            (d! :session/store-translation nil))}
          (comp-i :check 14 (hsl 200 80 60))))))
     (render-field
      "key"
