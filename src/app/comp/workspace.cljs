@@ -8,7 +8,9 @@
             [respo-alerts.comp.alerts :refer [comp-prompt comp-alert]]
             [clojure.string :as string]
             [feather.core :refer [comp-i comp-icon]]
-            ["copy-text-to-clipboard" :as copy!])
+            ["copy-text-to-clipboard" :as copy!]
+            [inflow-popup.comp.dialog :refer [comp-dialog]]
+            [app.comp.creator :refer [comp-creator]])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (def style-hint {:display :inline-block, :color (hsl 0 0 80), :margin "0 16px"})
@@ -112,28 +114,20 @@
 
 (defcomp
  comp-search-box
- (states need-save?)
- (let [state (or (:data states) {:text ""})]
+ (states need-save? translation)
+ (let [state (or (:data states) {:text "", :editing? false})]
    (div
     {:style (merge
              ui/row-parted
              {:padding 16, :border-bottom (<< "1px solid ~(hsl 0 0 80)")})}
     (div
      {:style {}}
-     (cursor->
-      :add
-      comp-prompt
-      states
-      {:trigger (button
-                 {:style ui/button,
-                  :class-name "add-button",
-                  :inner-text "添加",
-                  :title "快捷键 Command i"}),
-       :initial (:text state)}
-      (fn [result d! m!]
-        (when (not (string/blank? result))
-          (d! :locale/add-one result)
-          (d! :session/query result))))
+     (button
+      {:style ui/button,
+       :class-name "add-button",
+       :inner-text "添加",
+       :title "快捷键 Command i",
+       :on-click (fn [e d! m!] (m! (assoc state :editing? true)))})
      (=< 16 nil)
      (input
       {:value (:text state),
@@ -146,12 +140,21 @@
      {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
       :inner-text "生成文件",
       :on-click (fn [e d! m!] (d! :effect/codegen nil)),
-      :title "快捷键 Command s"}))))
+      :title "快捷键 Command s"})
+    (if (:editing? state)
+      (comp-dialog
+       (fn [m!] (m! %cursor (assoc state :editing? false)))
+       (cursor->
+        :creator
+        comp-creator
+        states
+        translation
+        (fn [e d! m!] (m! %cursor (assoc state :editing? false)))))))))
 
 (defcomp
  comp-workspace
- (states locales query total need-save?)
+ (states locales query total need-save? translation)
  (div
   {:style (merge ui/flex ui/column {:overflow :auto})}
-  (cursor-> :search comp-search-box states need-save?)
+  (cursor-> :search comp-search-box states need-save? translation)
   (cursor-> :table comp-lang-table states locales total query)))

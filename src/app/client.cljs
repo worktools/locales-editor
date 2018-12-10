@@ -41,7 +41,7 @@
 (def mount-target (.querySelector js/document ".app"))
 
 (defn on-keydown! [event]
-  (js/console.log event)
+  (comment js/console.log event)
   (cond
     (and (= (.-key event) "s") (.-metaKey event))
       (do (.preventDefault event) (dispatch! :effect/codegen nil))

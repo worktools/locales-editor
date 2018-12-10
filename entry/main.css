@@ -7,6 +7,7 @@ body {
 body * {
   box-sizing: border-box;
   outline: none;
+  flex-shrink: 0;
 }
 
 .dev-shadows,
@@ -33,4 +34,9 @@ body * {
 }
 :-moz-placeholder { /* Firefox 18- */
   color: hsl(0,0%,90%);
+}
+
+button:focus {
+  transform: scale(1.02);
+
 }
