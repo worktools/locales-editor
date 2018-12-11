@@ -22,7 +22,7 @@
        matched-locale-pairs (->> (:locales db)
                                  (filter
                                   (fn [[k info]]
-                                    (if (some? (:query session))
+                                    (if (not (string/blank? (:query session)))
                                       (or (find-chunk k (:query session))
                                           (find-chunk (get info "zhCN") (:query session))
                                           (find-chunk (get info "enUS") (:query session)))

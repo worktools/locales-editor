@@ -57,8 +57,8 @@
       (render-field
        ""
        (div
-        {:style ui/row-middle}
-        (<> (:text translation))
+        {:style (merge ui/flex ui/row-middle)}
+        (<> (:text translation) {:width :fit-content})
         (=< 8 nil)
         (span
          {:style {:cursor :pointer},

@@ -101,7 +101,7 @@
        (<> (<< "全部 ~{size} 条数据已显示"))
        (<> (<< "已显示 ~{size} 条数据, 总共 ~{total} 条")))
      (=< 8 nil)
-     (if (some? query)
+     (if (not (string/blank? query))
        (button
         {:style ui/button,
          :inner-text "清除",

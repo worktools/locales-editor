@@ -57,7 +57,7 @@
               (.yellow
                chalk
                (<<
-                "New version ~{npm-version} available, current one is ~{version} . Please upgrade!")))))))))
+                "New version ~{npm-version} available, current one is ~{version} . Please upgrade!\n\nyarn global add @jimengio/locales-editor\n")))))))))
 
 (defn format-keys [xs] (if (empty? xs) "" (str "(" (string/join ", " xs) ")")))
 
@@ -75,6 +75,8 @@
          (sort lines-sorter)
          (string/join "\n"))))
 
+(defn write-file! [filepath content] (fs/writeFile filepath content (fn [] )))
+
 (defn persist-db! []
   (let [file-content (write-edn
                       (-> (:db @*reel) (assoc :sessions {}) (dissoc :saved-locales)))
@@ -86,7 +88,7 @@
                      (str (inc (.getMonth now)))
                      (str (.getDate now) "-storage.edn"))]
     (reset! *storage-md5 (md5 file-content))
-    (fs/writeFileSync storage-path file-content)
+    (write-file! storage-path file-content)
     (cp/execSync (str "mkdir -p " (path/dirname backup-path)))
     (fs/writeFileSync backup-path file-content)
     (println "Saved file in" storage-path)))
@@ -115,9 +117,9 @@
                                   (string/join "\n"))
                              "\n}\n"))]
     (println "Found" (count locales) "entries." "Genrating files...")
-    (fs/writeFileSync interface-file interface-content)
-    (fs/writeFileSync en-file en-content)
-    (fs/writeFileSync zh-file zh-content)
+    (write-file! interface-file interface-content)
+    (write-file! en-file en-content)
+    (write-file! zh-file zh-content)
     (persist-db!)))
 
 (defn show-changes! [locales saved-locales]
