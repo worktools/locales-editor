@@ -3,14 +3,20 @@
 
 (def bundle-builds #{"release" "local-bundle"})
 
-(defn cdn? [] )
+(def cdn?
+  (cond
+    (exists? js/window) false
+    (exists? js/process) (= "true" js/process.env.cdn)
+    :else false))
 
 (def dev?
   (let [debug? (do ^boolean js/goog.DEBUG)]
-    (cond
-      (exists? js/window) debug?
-      (exists? js/process) (not= "true" js/process.env.release)
-      :else true)))
+    (if debug?
+      (cond
+        (exists? js/window) true
+        (exists? js/process) (not= "true" js/process.env.release)
+        :else true)
+      false)))
 
 (def site
   {:port 8008,

@@ -35,7 +35,7 @@
 
 (defn connect! []
   (ws-connect!
-   (<< "ws://~{js/location.hostname}:~(:port config/site)")
+   (<< "ws://localhost:~(:port config/site)")
    {:on-open (fn [] (comment simulate-login!)),
     :on-close (fn [event] (reset! *store nil) (js/console.error "Lost connection!")),
     :on-data (fn [data]
