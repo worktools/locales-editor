@@ -1,15 +1,13 @@
 
 (ns app.server
   (:require [app.schema :as schema]
-            [app.service :refer [run-server! sync-clients!]]
             [app.updater :refer [updater]]
             [cljs.reader :refer [read-string]]
-            [cumulo-reel.reel :refer [reel-reducer refresh-reel reel-schema]]
+            [cumulo-reel.core :refer [reel-reducer refresh-reel reel-schema]]
             ["fs" :as fs]
             ["shortid" :as shortid]
             ["child_process" :as cp]
             ["path" :as path]
-            [app.node-config :as node-config]
             [app.config :as config]
             [fipp.edn :refer [pprint]]
             [clojure.string :as string]
@@ -20,24 +18,33 @@
             ["axios" :as axios]
             ["md5" :as md5]
             ["gaze" :as gaze]
-            [clojure.set :refer [intersection difference]])
+            [clojure.set :refer [intersection difference]]
+            [cumulo-util.core :refer [id! repeat! unix-time! delay!]]
+            [ws-edn.server :refer [wss-serve! wss-send! wss-each!]]
+            [cumulo-util.file :refer [write-mildly! get-backup-path! merge-local-edn!]]
+            [recollect.diff :refer [diff-twig]]
+            [recollect.twig :refer [render-twig]]
+            [app.twig.container :refer [twig-container]])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
+(defonce *client-caches (atom {}))
+
+(def storage-file (path/join js/process.env.PWD "locales.edn"))
+
 (defonce initial-db
-  (let [filepath (:storage-path node-config/env)]
-    (if (fs/existsSync filepath)
-      (do
-       (println "Found storage in:" (:storage-path node-config/env))
-       (let [storage (read-string (fs/readFileSync filepath "utf8"))
-             schema-version (get-in storage [:schema :version])
-             cli-version (get-in schema/database [:schema :version])]
-         (when (not= schema-version cli-version)
-           (println
-            (<<
-             "Schema version(~{schema-version}) does not match version of cli(~{cli-version}). Existing!"))
-           (.exit js/process 1))
-         (assoc storage :saved-locales (:locales storage))))
-      (schema/database))))
+  (let [storage (merge-local-edn!
+                 schema/database
+                 storage-file
+                 (fn [found?]
+                   (if found? (println "Found local EDN data") (println "Found no data"))))
+        schema-version (get-in storage [:schema :version])
+        cli-version (get-in schema/database [:schema :version])]
+    (when (not= schema-version cli-version)
+      (println
+       (<<
+        "Schema version(~{schema-version}) does not match version of cli(~{cli-version}). Existing!"))
+      (.exit js/process 1))
+    (assoc storage :saved-locales (:locales storage))))
 
 (defonce *reel (atom (merge reel-schema {:base initial-db, :db initial-db})))
 
@@ -75,23 +82,18 @@
          (sort lines-sorter)
          (string/join "\n"))))
 
-(defn write-file! [filepath content] (fs/writeFile filepath content (fn [] )))
-
 (defn persist-db! []
   (let [file-content (write-edn
                       (-> (:db @*reel) (assoc :sessions {}) (dissoc :saved-locales)))
-        now (js/Date.)
-        storage-path (:storage-path node-config/env)
-        backup-path (path/join
-                     js/__dirname
-                     "backups"
-                     (str (inc (.getMonth now)))
-                     (str (.getDate now) "-storage.edn"))]
+        now (unix-time!)
+        storage-path storage-file
+        backup-path (get-backup-path!)]
     (reset! *storage-md5 (md5 file-content))
-    (write-file! storage-path file-content)
-    (cp/execSync (str "mkdir -p " (path/dirname backup-path)))
-    (fs/writeFileSync backup-path file-content)
+    (write-mildly! storage-path file-content)
+    (write-mildly! backup-path file-content)
     (println "Saved file in" storage-path)))
+
+(defn write-file! [filepath content] (fs/writeFile filepath content (fn [] )))
 
 (defn generate-files! []
   (let [base js/process.env.PWD
@@ -169,8 +171,8 @@
                (js/console.warn "Request failed:" data))))))))
 
 (defn dispatch! [op op-data sid]
-  (let [op-id (.generate shortid), op-time (.valueOf (js/Date.)), db (:db @*reel)]
-    (when node-config/dev? (println "Dispatch!" (str op) (subs (pr-str op-data) 0 140)))
+  (let [op-id (id!), op-time (unix-time!), db (:db @*reel)]
+    (when config/dev? (println "Dispatch!" (str op) (subs (pr-str op-data) 0 140)))
     (try
      (cond
        (= op :effect/persist) (persist-db!)
@@ -201,13 +203,44 @@
       (reset! *storage-md5 new-md5)
       (dispatch! :locale/checkout (:locales (read-string content)) nil))))
 
+(defn sync-clients! [reel]
+  (wss-each!
+   (fn [sid socket]
+     (let [db (:db reel)
+           records (:records reel)
+           session (get-in db [:sessions sid])
+           old-store (or (get @*client-caches sid) nil)
+           new-store (render-twig (twig-container db session records) old-store)
+           changes (diff-twig old-store new-store {:key :id})]
+       (println "Changes for" sid ":" changes (count records))
+       (if (not= changes [])
+         (do
+          (wss-send! sid {:kind :patch, :data changes})
+          (swap! *client-caches assoc sid new-store)))))))
+
 (defn render-loop! []
-  (if (not (identical? @*reader-reel @*reel))
-    (do (reset! *reader-reel @*reel) (sync-clients! @*reader-reel)))
-  (js/setTimeout render-loop! 200))
+  (when (not (identical? @*reader-reel @*reel))
+    (reset! *reader-reel @*reel)
+    (sync-clients! @*reader-reel))
+  (delay! 0.2 render-loop!))
+
+(defn run-server! []
+  (wss-serve!
+   (:port config/site)
+   {:on-open (fn [sid socket]
+      (dispatch! :session/connect nil sid)
+      (js/console.info "New client.")),
+    :on-data (fn [sid action]
+      (case (:kind action)
+        :op (dispatch! (:op action) (:data action) sid)
+        (println "unknown data" action))),
+    :on-close (fn [sid event]
+      (js/console.warn "Client closed!")
+      (dispatch! :session/disconnect nil sid)),
+    :on-error (fn [error] (.error js/console error))}))
 
 (defn watch-storage! []
-  (let [filepath (:storage-path node-config/env)]
+  (let [filepath storage-file]
     (reset! *storage-md5 (md5 (fs/readFileSync filepath "utf8")))
     (gaze
      filepath
@@ -217,8 +250,9 @@
          (.on ^js watcher "changed" (fn [_] (on-file-change! filepath))))))))
 
 (defn main! []
+  (println "Running mode:" (if config/dev? "dev" "release"))
   (when (= js/process.env.op "compile") (generate-files!) (js/process.exit 0))
-  (run-server! #(dispatch! %1 %2 %3) (:port config/site))
+  (run-server!)
   (render-loop!)
   (comment .on js/process "SIGINT" on-exit!)
   (comment js/setInterval #(persist-db!) (* 60 1000 10))

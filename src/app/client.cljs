@@ -4,9 +4,11 @@
             [respo.cursor :refer [mutate]]
             [app.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]
-            [app.connection :refer [send! setup-socket!]]
+            [ws-edn.client :refer [ws-connect! ws-send!]]
             [app.schema :as schema]
-            [app.config :as config]))
+            [app.config :as config]
+            [recollect.patch :refer [patch-twig]])
+  (:require-macros [clojure.core.strint :refer [<<]]))
 
 (declare dispatch!)
 
@@ -29,14 +31,20 @@
   (case op
     :states (reset! *states ((mutate op-data) @*states))
     :effect/connect (connect!)
-    (send! op op-data)))
+    (ws-send! {:kind :op, :op op, :data op-data})))
 
 (defn connect! []
-  (setup-socket!
-   *store
-   {:url (str "ws://localhost:" (:port config/site)),
-    :on-close! (fn [event] (reset! *store nil) (.error js/console "Lost connection!")),
-    :on-open! (fn [event] (comment simulate-login!))}))
+  (ws-connect!
+   (<< "ws://~{js/location.hostname}:~(:port config/site)")
+   {:on-open (fn [] (comment simulate-login!)),
+    :on-close (fn [event] (reset! *store nil) (js/console.error "Lost connection!")),
+    :on-data (fn [data]
+      (case (:kind data)
+        :patch
+          (let [changes (:data data)]
+            (js/console.log "Changes" (clj->js changes))
+            (reset! *store (patch-twig @*store changes)))
+        (println "unknown kind:" data)))}))
 
 (def mount-target (.querySelector js/document ".app"))
 
@@ -56,6 +64,7 @@
 (def ssr? (some? (.querySelector js/document "meta.respo-ssr")))
 
 (defn main! []
+  (println "Running mode:" (if config/dev? "dev" "release"))
   (if ssr? (render-app! realize-ssr!))
   (render-app! render!)
   (connect!)
