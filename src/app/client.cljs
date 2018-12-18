@@ -42,7 +42,7 @@
       (case (:kind data)
         :patch
           (let [changes (:data data)]
-            (js/console.log "Changes" (clj->js changes))
+            (when config/dev? (js/console.log "Changes" (clj->js changes)))
             (reset! *store (patch-twig @*store changes)))
         (println "unknown kind:" data)))}))
 
