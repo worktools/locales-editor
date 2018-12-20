@@ -7,7 +7,8 @@
             [ws-edn.client :refer [ws-connect! ws-send!]]
             [app.schema :as schema]
             [app.config :as config]
-            [recollect.patch :refer [patch-twig]])
+            [recollect.patch :refer [patch-twig]]
+            [cumulo-util.core :refer [on-page-touch]])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (declare dispatch!)
@@ -70,10 +71,7 @@
   (connect!)
   (add-watch *store :changes #(render-app! render!))
   (add-watch *states :changes #(render-app! render!))
-  (.addEventListener
-   js/window
-   "visibilitychange"
-   (fn [] (when (and (nil? @*store) (= "visible" js/document.visibilityState)) (connect!))))
+  (on-page-touch (fn [] (when (nil? @*store) (connect!))))
   (.addEventListener js/window "keydown" (fn [event] (on-keydown! event)))
   (println "App started!"))
 
