@@ -3,9 +3,12 @@
   (:require [recollect.twig :refer [deftwig]]
             [app.twig.user :refer [twig-user]]
             ["randomcolor" :as color]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [fuzzy-filter.core :refer [parse-by-word]]))
 
-(defn find-chunk [xs x] (string/includes? (string/lower-case xs) (string/lower-case x)))
+(defn find-chunk [xs x]
+  (comment string/includes? (string/lower-case xs) (string/lower-case x))
+  (:matches? (parse-by-word (string/lower-case xs) (string/lower-case x))))
 
 (deftwig
  twig-members
