@@ -170,7 +170,7 @@
   (comment js/setInterval #(persist-db!) (* 60 1000 10))
   (println
    "Server started. Open editer on"
-   (.blue chalk "http://repo.tiye.me/chenyong/locales-editor/"))
+   (.blue chalk "http://fe.jimu.io/locales-editor/"))
   (check-version!)
   (watch-storage!))
 

@@ -11449,7 +11449,7 @@
           :data {
            "D" {:type :leaf, :by "root", :at 1542769704966, :text ".blue", :id "7pBx7jelS"}
            "T" {:type :leaf, :by "root", :at 1542769704413, :text "chalk", :id "wvbMUf5cpC"}
-           "j" {:type :leaf, :by "root", :at 1542769721206, :text "\"http://repo.tiye.me/chenyong/locales-editor/", :id "7Eb0sDDVr"}
+           "j" {:type :leaf, :by "root", :at 1545630480702, :text "\"http://fe.jimu.io/locales-editor/", :id "7Eb0sDDVr"}
           }
          }
         }
