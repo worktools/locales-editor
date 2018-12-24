@@ -5,9 +5,7 @@
             [respo.core :refer [defcomp <> div span action-> cursor-> button]]
             [respo.comp.inspect :refer [comp-inspect]]
             [respo.comp.space :refer [=<]]
-            [app.comp.navigation :refer [comp-navigation]]
             [app.comp.profile :refer [comp-profile]]
-            [app.comp.login :refer [comp-login]]
             [respo-message.comp.messages :refer [comp-messages]]
             [cumulo-reel.comp.reel :refer [comp-reel]]
             [app.config :refer [dev?]]
@@ -62,7 +60,6 @@
      (comp-offline)
      (div
       {:style (merge ui/global ui/fullscreen ui/column)}
-      (comp-navigation (:logged-in? store) (:count store))
       (if (:logged-in? store)
         (case (:name router)
           :home
@@ -77,8 +74,7 @@
              (:translation session)
              (:modifications store))
           :profile (comp-profile (:user store) (:data router))
-          (<> router))
-        (comp-login states))
+          (<> router)))
       (let [translation (:translation session)]
         (when (and (some? translation) (not (empty? (:key translation))))
           (comp-translation (:translation session))))

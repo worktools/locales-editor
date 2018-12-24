@@ -4,7 +4,8 @@
             [respo-ui.core :as ui]
             [respo.comp.space :refer [=<]]
             [respo.core :refer [defcomp <> action-> list-> span div]]
-            [app.config :as config]))
+            [app.config :as config])
+  (:require-macros [clojure.core.strint :refer [<<]]))
 
 (defcomp
  comp-key
@@ -29,22 +30,23 @@
  (data)
  (let [added (:added data), changed (:changed data), removed (:removed data)]
    (div
-    {:style {:padding "8px 16px"}}
+    {:style {:padding "8px 16px", :border-top (<< "1px solid ~(hsl 0 0 90)")}}
     (if (not (empty? added))
       (div
        {:style style-group}
-       (<> "Added")
+       (<> "新增")
        (=< 8 nil)
        (list-> {:style style-list} (->> added (map (fn [k] [k (comp-key k)]))))))
     (if (not (empty? changed))
       (div
        {:style style-group}
-       (<> "Changed")
+       (<> "修改")
        (=< 8 nil)
        (list-> {:style style-list} (->> changed (map (fn [k] [k (comp-key k)]))))))
-    (if (not (empty? added))
+    (if (not (empty? removed))
       (div
        {:style style-group}
-       (<> "Removed")
+       (<> "删除")
        (=< 8 nil)
-       (list-> {:style style-list} (->> removed (map (fn [k] [k (comp-key k)])))))))))
+       (list-> {:style style-list} (->> removed (map (fn [k] [k (comp-key k)]))))))
+    (if (every? empty? [added removed changed]) (<> "没有修改" style-group)))))

@@ -6,7 +6,6 @@
             [respo.comp.inspect :refer [comp-inspect]]
             [respo.comp.space :refer [=<]]
             [app.comp.profile :refer [comp-profile]]
-            [app.comp.login :refer [comp-login]]
             [app.config :refer [dev?]]
             [app.schema :as schema]
             [app.config :as config]

@@ -120,7 +120,7 @@
    (div
     {:style (merge
              ui/row-parted
-             {:padding 16, :border-bottom (<< "1px solid ~(hsl 0 0 80)")})}
+             {:padding 16, :border-bottom (<< "1px solid ~(hsl 0 0 90)")})}
     (div
      {:style {}}
      (button
@@ -173,5 +173,5 @@
  (div
   {:style (merge ui/flex ui/column {:overflow :auto})}
   (cursor-> :search comp-search-box states need-save? translation)
-  (comp-modifications modifications)
-  (cursor-> :table comp-lang-table states locales total query)))
+  (cursor-> :table comp-lang-table states locales total query)
+  (comp-modifications modifications)))
