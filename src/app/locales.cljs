@@ -54,6 +54,17 @@
     (write-file! en-file en-content)
     (write-file! zh-file zh-content)))
 
+(defn get-modifications [locales saved-locales]
+  (let [new-keys (set (keys locales))
+        old-keys (set (keys saved-locales))
+        common-keys (intersection new-keys old-keys)
+        changed-keys (->> common-keys
+                          (filter (fn [k] (not= (get locales k) (get saved-locales k))))
+                          set)
+        added-keys (difference new-keys old-keys)
+        removed-keys (difference old-keys new-keys)]
+    {:added added-keys, :removed removed-keys, :changed changed-keys}))
+
 (defn show-changes! [locales saved-locales]
   (let [new-keys (set (keys locales))
         old-keys (set (keys saved-locales))

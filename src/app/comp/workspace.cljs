@@ -10,7 +10,8 @@
             [feather.core :refer [comp-i comp-icon]]
             ["copy-text-to-clipboard" :as copy!]
             [inflow-popup.comp.dialog :refer [comp-dialog]]
-            [app.comp.creator :refer [comp-creator]])
+            [app.comp.creator :refer [comp-creator]]
+            [app.comp.modifications :refer [comp-modifications]])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (def style-hint {:display :inline-block, :color (hsl 0 0 80), :margin "0 16px"})
@@ -168,8 +169,9 @@
 
 (defcomp
  comp-workspace
- (states locales query total need-save? translation)
+ (states locales query total need-save? translation modifications)
  (div
   {:style (merge ui/flex ui/column {:overflow :auto})}
   (cursor-> :search comp-search-box states need-save? translation)
+  (comp-modifications modifications)
   (cursor-> :table comp-lang-table states locales total query)))
