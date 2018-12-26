@@ -10,7 +10,7 @@ A tiny tool to for generating locales.
 
 ```bash
 yarn global add @jimengio/locales-editor
-open http://repo.tiye.me/chenyong/locales-editor/
+open http://fe.jimu.io/locales-editor/
 locales-editor # in the folder contains locales.edn
 ```
 
