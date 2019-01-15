@@ -169,7 +169,7 @@
   (comment .on js/process "SIGINT" on-exit!)
   (comment js/setInterval #(persist-db!) (* 60 1000 10))
   (println
-   "Server started. Open editer on"
+   "Server started. Open editor on"
    (.blue chalk "http://fe.jimu.io/locales-editor/"))
   (check-version!)
   (watch-storage!))

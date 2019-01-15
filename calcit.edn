@@ -1,4 +1,8 @@
 {
+ :users {
+  "B1y7Rc-Zz" {:id "B1y7Rc-Zz", :name "chen", :nickname "chen", :password "d41d8cd98f00b204e9800998ecf8427e", :avatar nil, :theme :star-trail}
+  "root" {:id "root", :name "root", :nickname "root", :password "d41d8cd98f00b204e9800998ecf8427e", :avatar nil, :theme :star-trail}
+ }
  :ir {
   :package "app"
   :root {:ns "main", :def "main!"}
@@ -11443,7 +11447,7 @@
         :type :expr, :by "root", :at 1542184821417, :id "XvUdfxwXYp"
         :data {
          "T" {:type :leaf, :by "root", :at 1542184821417, :text "println", :id "h-fDY60TlW"}
-         "j" {:type :leaf, :by "root", :at 1542769694562, :text "\"Server started. Open editer on", :id "LKb2uS8CB6"}
+         "j" {:type :leaf, :by "root", :at 1547101260376, :text "\"Server started. Open editor on", :id "LKb2uS8CB6"}
          "r" {
           :type :expr, :by "root", :at 1542769696407, :id "RHZjdWVKxI"
           :data {
@@ -15153,15 +15157,5 @@
    }
   }
  }
- :sessions {}
- :users {
-  "B1y7Rc-Zz" {:id "B1y7Rc-Zz", :name "chen", :nickname "chen", :password "d41d8cd98f00b204e9800998ecf8427e", :avatar nil, :theme :star-trail}
-  "root" {:id "root", :name "root", :nickname "root", :password "d41d8cd98f00b204e9800998ecf8427e", :avatar nil, :theme :star-trail}
- }
- :saved-files {}
  :configs {:storage-key "calcit.edn", :extension ".cljs", :output "src", :port 6001}
- :repl {
-  :alive? false
-  :logs {}
- }
 }
