@@ -16,6 +16,12 @@ locales-editor # in the folder contains locales.edn
 
 `locales.edn` is the snapshot defined in our own project
 
+To perform file generation only:
+
+```bash
+op=compile locales-editor
+```
+
 ### Translation
 
 Current tranlstion is using https://ai.youdao.com/docs/doc-trans-api.s#p08
