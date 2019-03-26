@@ -51,7 +51,6 @@
                                   (string/join "\n"))
                              "\n}\n"))]
     (println "Found" (count locales) "entries." "Genrating files...")
-    (println "sizes" (count en-content) ())
     (write-file! interface-file interface-content)
     (write-file! en-file en-content)
     (write-file! zh-file zh-content)))
