@@ -29,8 +29,8 @@
 
 (defn generate-files! [db]
   (let [base js/process.env.PWD
-        en-file (.join path base "enUS.ts")
-        zh-file (.join path base "zhCN.ts")
+        en-file (.join path base "en-us.ts")
+        zh-file (.join path base "zh-cn.ts")
         interface-file (.join path base "interface.ts")
         locales (:locales db)
         en-content (str

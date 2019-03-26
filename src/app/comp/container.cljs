@@ -12,7 +12,8 @@
             [app.schema :as schema]
             [app.config :as config]
             [app.comp.workspace :refer [comp-workspace]]
-            [app.comp.translation :refer [comp-translation]]))
+            [app.comp.translation :refer [comp-translation]]
+            [respo-md.comp.md :refer [comp-md]]))
 
 (defcomp
  comp-offline
@@ -30,9 +31,12 @@
             :height 128,
             :background-size :contain}})
   (div
-   {:style {:cursor :pointer, :line-height "32px"},
+   {:style (merge ui/center {:cursor :pointer, :line-height "32px"}),
     :on-click (action-> :effect/connect nil)}
-   (<> "No connection..." {:font-family ui/font-fancy, :font-size 24}))))
+   (<> "No connection..." {:font-family ui/font-fancy, :font-size 24})
+   (=< nil 16)
+   (comp-md
+    "This is a locales editor. Its backend is probably not started. Find out more [on GitHub](https://github.com/jimengio/locales-editor)."))))
 
 (defcomp
  comp-status-color
