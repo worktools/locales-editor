@@ -160,19 +160,21 @@
 
 (defn main! []
   (println "Running mode:" (if config/dev? "dev" "release"))
-  (when (= js/process.env.op "compile")
-    (locales/generate-files! (:db @*reel))
-    (persist-db!)
-    (js/process.exit 0))
-  (run-server!)
-  (render-loop!)
-  (comment .on js/process "SIGINT" on-exit!)
-  (comment js/setInterval #(persist-db!) (* 60 1000 10))
-  (println
-   "Server started. Open editor on"
-   (.blue chalk "http://fe.jimu.io/locales-editor/"))
-  (check-version!)
-  (watch-storage!))
+  (if (= js/process.env.op "compile")
+    (do
+     (println (.yellow chalk "Compilation only mode!"))
+     (locales/generate-files! (:db @*reel))
+     (comment persist-db!))
+    (do
+     (run-server!)
+     (render-loop!)
+     (comment .on js/process "SIGINT" on-exit!)
+     (comment js/setInterval #(persist-db!) (* 60 1000 10))
+     (println
+      "Server started. Open editor on"
+      (.blue chalk "http://fe.jimu.io/locales-editor/"))
+     (check-version!)
+     (watch-storage!))))
 
 (defn reload! []
   (println "Code updated.")

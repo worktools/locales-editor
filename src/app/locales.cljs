@@ -25,7 +25,8 @@
          (sort lines-sorter)
          (string/join "\n"))))
 
-(defn write-file! [filepath content] (fs/writeFile filepath content (fn [] )))
+(defn write-file! [filepath content]
+  (fs/writeFile filepath content (fn [err] (if (some? err) (js/console.error err)))))
 
 (defn generate-files! [db]
   (let [base js/process.env.PWD
@@ -50,6 +51,7 @@
                                   (string/join "\n"))
                              "\n}\n"))]
     (println "Found" (count locales) "entries." "Genrating files...")
+    (println "sizes" (count en-content) ())
     (write-file! interface-file interface-content)
     (write-file! en-file en-content)
     (write-file! zh-file zh-content)))
