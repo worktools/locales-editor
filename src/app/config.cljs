@@ -25,9 +25,9 @@
    :dev-ui "http://localhost:8100/main.css",
    :release-ui "http://cdn.tiye.me/favored-fonts/main.css",
    :cdn-url "http://cdn.tiye.me/locales-editor/",
-   :cdn-folder "tiye.me:cdn/locales-editor",
-   :upload-folder "tiye.me:repo/chenyong/locales-editor/",
-   :server-folder "tiye.me:servers/locales-editor",
+   :cdn-folder "fe.jimu.io:cdn/locales-editor",
+   :upload-folder "fe.jimu.io:repo/jimengio/locales-editor/",
+   :server-folder "fe.jimu.io:servers/locales-editor",
    :theme "#eeeeff",
    :storage-key "locales-editor",
    :storage-path "locales.edn"})
