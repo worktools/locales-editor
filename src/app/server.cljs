@@ -69,13 +69,11 @@
 (defn persist-db! []
   (let [file-content (write-edn
                       (-> (:db @*reel) (assoc :sessions {}) (dissoc :saved-locales)))
-        now (unix-time!)
-        storage-path storage-file
-        backup-path (get-backup-path!)]
+        now (unix-time!)]
     (reset! *storage-md5 (md5 file-content))
-    (write-mildly! storage-path file-content)
-    (write-mildly! backup-path file-content)
-    (println "Saved file in" storage-path)))
+    (write-mildly! storage-file file-content)
+    (comment write-mildly! (get-backup-path!) file-content)
+    (println "Saved file in" storage-file)))
 
 (defn dispatch! [op op-data sid]
   (let [op-id (id!), op-time (unix-time!), db (:db @*reel)]
@@ -164,7 +162,7 @@
     (do
      (println (.yellow chalk "Compilation only mode!"))
      (locales/generate-files! (:db @*reel))
-     (comment persist-db!))
+     (persist-db!))
     (do
      (run-server!)
      (render-loop!)
