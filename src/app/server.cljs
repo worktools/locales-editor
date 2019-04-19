@@ -9,7 +9,6 @@
             ["child_process" :as cp]
             ["path" :as path]
             [app.config :as config]
-            [fipp.edn :refer [pprint]]
             [clojure.string :as string]
             [favored-edn.core :refer [write-edn]]
             ["latest-version" :as latest-version]

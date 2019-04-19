@@ -153,6 +153,11 @@
          :title "回滚修改到已经保存的版本"}))
      (=< 16 nil)
      (button
+      {:style (merge ui/button (when need-save? )),
+       :inner-text "查看数据",
+       :on-click (fn [e d! m!] (d! :effect/display nil))})
+     (=< 16 nil)
+     (button
       {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
        :inner-text "生成文件",
        :on-click (fn [e d! m!] (d! :effect/codegen nil)),
