@@ -53,7 +53,8 @@
 
 (defn check-version! []
   (let [pkg (.parse js/JSON (fs/readFileSync (path/join js/__dirname "../package.json")))
-        version (.-version pkg)]
+        version (.-version pkg)
+        pkg-name (.-name pkg)]
     (-> (latest-version (.-name pkg))
         (.then
          (fn [npm-version]
@@ -63,7 +64,7 @@
               (.yellow
                chalk
                (<<
-                "New version ~{npm-version} available, current one is ~{version} . Please upgrade!\n\nyarn global add @jimengio/locales-editor\n")))))))))
+                "New version ~{npm-version} available, current one is ~{version} . Please upgrade!\n\nyarn global add ~{pkg-name}\n")))))))))
 
 (defn persist-db! []
   (let [file-content (write-edn

@@ -34,14 +34,6 @@
         zh-file (.join path base "zh-cn.ts")
         interface-file (.join path base "interface.ts")
         locales (:locales db)
-        en-content (str
-                    "import { ILang } from \"./interface\";\nexport const enUS: ILang = {\n"
-                    (get-local-file locales "enUS")
-                    "\n};\n")
-        zh-content (str
-                    "import { ILang } from \"./interface\";\nexport const zhCN: ILang = {\n"
-                    (get-local-file locales "zhCN")
-                    "\n};\n")
         interface-content (let [locale-keys (keys locales)]
                             (str
                              "export interface ILang {\n"
@@ -49,11 +41,22 @@
                                   (map (fn [k] (str "  " k ": string;")))
                                   (sort lines-sorter)
                                   (string/join "\n"))
-                             "\n}\n"))]
+                             "\n}\n"))
+        types-only? (contains? #{"true" "on"} js/process.env.typesOnly)]
     (println "Found" (count locales) "entries." "Genrating files...")
     (write-file! interface-file interface-content)
-    (write-file! en-file en-content)
-    (write-file! zh-file zh-content)))
+    (if types-only?
+      (println "Generating types only.")
+      (let [en-content (str
+                        "import { ILang } from \"./interface\";\nexport const enUS: ILang = {\n"
+                        (get-local-file locales "enUS")
+                        "\n};\n")
+            zh-content (str
+                        "import { ILang } from \"./interface\";\nexport const zhCN: ILang = {\n"
+                        (get-local-file locales "zhCN")
+                        "\n};\n")]
+        (write-file! en-file en-content)
+        (write-file! zh-file zh-content)))))
 
 (defn get-modifications [locales saved-locales]
   (let [new-keys (set (keys locales))
