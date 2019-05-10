@@ -22,6 +22,12 @@ To perform file generation only:
 op=compile locales-editor
 ```
 
+To skip generating `zh.ts` and `en.ts`:
+
+```bash
+typesOnly=true locales-editor
+```
+
 ### Translation
 
 Current tranlstion is using https://ai.youdao.com/docs/doc-trans-api.s#p08
