@@ -5,7 +5,6 @@
             [respo.core :refer [defcomp <> div span action-> cursor-> button]]
             [respo.comp.inspect :refer [comp-inspect]]
             [respo.comp.space :refer [=<]]
-            [app.comp.profile :refer [comp-profile]]
             [respo-message.comp.messages :refer [comp-messages]]
             [cumulo-reel.comp.reel :refer [comp-reel]]
             [app.config :refer [dev?]]
@@ -13,7 +12,8 @@
             [app.config :as config]
             [app.comp.workspace :refer [comp-workspace]]
             [app.comp.translation :refer [comp-translation]]
-            [respo-md.comp.md :refer [comp-md]]))
+            [respo-md.comp.md :refer [comp-md]]
+            [app.comp.text-mode :refer [comp-text-mode]]))
 
 (defcomp
  comp-offline
@@ -77,7 +77,7 @@
              (:need-save? store)
              (:translation session)
              (:modifications store))
-          :profile (comp-profile (:user store) (:data router))
+          :text (comp-text-mode store)
           (<> router)))
       (let [translation (:translation session)]
         (when (and (some? translation) (not (empty? (:key translation))))
