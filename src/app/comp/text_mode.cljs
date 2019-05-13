@@ -32,5 +32,9 @@
    {:style (merge
             ui/textarea
             ui/flex
-            {:font-family ui/font-code, :width "100%", :height "80%", :font-size 12}),
+            {:font-family ui/font-code,
+             :width "100%",
+             :height "80%",
+             :font-size 12,
+             :padding-bottom 160}),
     :value (write-edn (:locales store))})))

@@ -123,10 +123,6 @@
              {:padding 16, :border-bottom (<< "1px solid ~(hsl 0 0 90)")})}
     (div
      {:style ui/row-middle}
-     (<>
-      "Locales"
-      {:font-family ui/font-fancy, :font-size 20, :font-weight 100, :cursor :pointer})
-     (=< 12 nil)
      (button
       {:style ui/button,
        :class-name "add-button",
