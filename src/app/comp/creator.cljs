@@ -25,8 +25,8 @@
 
 (defcomp
  comp-creator
- (states translation on-close!)
- (let [state (or (:data states) {:zh-text "", :en-text "", :key-text ""})
+ (states translation init-zh on-close!)
+ (let [state (or (:data states) {:zh-text (or init-zh ""), :en-text "", :key-text ""})
        zh (:zh-text state)
        en (:en-text state)
        key-text (:key-text state)]
@@ -67,7 +67,13 @@
           (span
            {:style {:cursor :pointer},
             :on-click (fn [e d! m!]
-              (m! (assoc state :en-text (:text translation)))
+              (m!
+               (assoc
+                state
+                :en-text
+                (:text translation)
+                :key-text
+                (generate-key (:text translation))))
               (d! :session/store-translation nil))}
            (comp-i :check 14 (hsl 200 80 60)))
           (=< 8 nil)
@@ -102,7 +108,7 @@
            (do
             (d! :locale/create-locale {:key key-text, :zh zh, :en en})
             (d! :session/query key-text)
-            (m! (merge state {:zh-text "", :en-text "", :key-text ""}))
+            (m! nil)
             (on-close! e d! m!)
             (copy! key-text))
            (js/console.warn "not allowed to be empty!")))})))))

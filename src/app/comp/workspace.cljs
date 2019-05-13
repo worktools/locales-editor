@@ -170,6 +170,7 @@
         comp-creator
         states
         translation
+        (:text state)
         (fn [e d! m!] (m! %cursor (assoc state :editing? false)))))))))
 
 (defcomp
