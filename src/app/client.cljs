@@ -8,8 +8,7 @@
             [app.schema :as schema]
             [app.config :as config]
             [recollect.patch :refer [patch-twig]]
-            [cumulo-util.core :refer [on-page-touch]]
-            [app.util :refer [display-snapshot!]])
+            [cumulo-util.core :refer [on-page-touch]])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (declare dispatch!)
@@ -33,7 +32,6 @@
   (case op
     :states (reset! *states ((mutate op-data) @*states))
     :effect/connect (connect!)
-    :effect/display (display-snapshot! @*store)
     (ws-send! {:kind :op, :op op, :data op-data})))
 
 (defn connect! []

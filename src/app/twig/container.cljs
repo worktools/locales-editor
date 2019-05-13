@@ -43,10 +43,9 @@
                :home (:pages db)
                :profile (twig-members (:sessions db) (:users db))
                {})),
-    :locales (->> matched-locale-pairs
-                  (sort-by (fn [[k info]] (count k)))
-                  (take 40)
-                  (into {})),
+    :locales (if (= :text (:name router))
+      (:locales db)
+      (->> matched-locale-pairs (sort-by (fn [[k info]] (count k))) (take 40) (into {}))),
     :matched-count (count matched-locale-pairs),
     :need-save? (not= (:locales db) (:saved-locales db)),
     :modifications (get-modifications (:locales db) (:saved-locales db))}))

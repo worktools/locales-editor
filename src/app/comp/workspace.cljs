@@ -122,7 +122,7 @@
              ui/row-parted
              {:padding 16, :border-bottom (<< "1px solid ~(hsl 0 0 90)")})}
     (div
-     {:style {}}
+     {:style ui/row-middle}
      (button
       {:style ui/button,
        :class-name "add-button",
@@ -154,8 +154,10 @@
      (=< 16 nil)
      (button
       {:style (merge ui/button (when need-save? )),
-       :inner-text "查看数据",
-       :on-click (fn [e d! m!] (d! :effect/display nil))})
+       :inner-text "查看全部数据",
+       :on-click (fn [e d! m!]
+         (comment d! :effect/display nil)
+         (d! :router/change {:name :text}))})
      (=< 16 nil)
      (button
       {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
@@ -170,6 +172,7 @@
         comp-creator
         states
         translation
+        (:text state)
         (fn [e d! m!] (m! %cursor (assoc state :editing? false)))))))))
 
 (defcomp

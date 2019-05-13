@@ -30,7 +30,7 @@ typesOnly=true locales-editor
 
 ### Translation
 
-Current tranlstion is using https://ai.youdao.com/docs/doc-trans-api.s#p08
+Current translation is using https://ai.youdao.com/docs/doc-trans-api.s#p08
 
 Add `:app-id` and `:app-secret` are filled in `:settings`.
 
