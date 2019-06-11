@@ -35,21 +35,15 @@
     (div {} (<> "添加多语言"))
     (render-field
      "zhCN"
-     (input
-      {:style (merge ui/input {:width 320}),
-       :class-name "zh-input",
-       :value zh,
-       :on-input (fn [e d! m!] (m! (assoc state :zh-text (:value e))))}))
-    (render-field
-     "enUS"
      (div
       {:style ui/expand}
       (input
        {:style (merge ui/input {:width 320}),
-        :value en,
-        :on-input (fn [e d! m!] (m! (assoc state :en-text (:value e))))})
+        :class-name "zh-input",
+        :value zh,
+        :on-input (fn [e d! m!] (m! (assoc state :zh-text (:value e))))})
       (div
-       {:style (merge ui/row-middle {:min-height 32})}
+       {:style (merge ui/row-middle {:min-height 32, :margin-bottom -8})}
        (span
         {:style {:cursor :pointer},
          :on-click (fn [e d! m!] (d! :effect/translate [key-text zh]))}
@@ -83,32 +77,55 @@
            (comp-i :x 14 (hsl 20 80 60))))
          (<> "翻译" {:color (hsl 0 0 80)})))))
     (render-field
+     "enUS"
+     (div
+      {:style ui/row-middle}
+      (input
+       {:style (merge ui/input {:width 320}),
+        :value en,
+        :on-input (fn [e d! m!] (m! (assoc state :en-text (:value e))))})
+      (=< 8 nil)
+      (span
+       {:style {:cursor :pointer},
+        :on-click (fn [e d! m!]
+          (m! (assoc state :key-text (generate-key en)))
+          (d! :session/store-translation nil))}
+       (comp-i :corner-down-left 14 (hsl 200 80 70)))))
+    (render-field
      "key"
      (div
       {:style ui/row}
-      (div
-       {:style ui/row-middle}
-       (input
-        {:style (merge ui/input {:width 320}),
-         :value key-text,
-         :on-input (fn [e d! m!] (m! (assoc state :key-text (:value e))))})
-       (=< 8 nil)
-       (span
-        {:style {:cursor :pointer},
-         :on-click (fn [e d! m!] (m! (assoc state :key-text (generate-key en))))}
-        (comp-i :corner-down-left 14 (hsl 200 80 70))))))
+      (input
+       {:style (merge ui/input {:width 320}),
+        :value key-text,
+        :on-input (fn [e d! m!] (m! (assoc state :key-text (:value e))))})))
     (div
      {:style (merge ui/row-parted {:margin-top 16})}
      (span {})
-     (button
-      {:style ui/button,
-       :inner-text "提交并复制",
-       :on-click (fn [e d! m!]
-         (if (not (or (blank? zh) (blank? en) (blank? key-text)))
-           (do
-            (d! :locale/create-locale {:key key-text, :zh zh, :en en})
-            (d! :session/query key-text)
-            (m! nil)
-            (on-close! e d! m!)
-            (copy! key-text))
-           (js/console.warn "not allowed to be empty!")))})))))
+     (div
+      {:style ui/row-middle}
+      (button
+       {:style ui/button,
+        :inner-text "连续提交",
+        :on-click (fn [e d! m!]
+          (if (not (or (blank? zh) (blank? en) (blank? key-text)))
+            (do
+             (d! :locale/create-locale {:key key-text, :zh zh, :en en})
+             (d! :session/query key-text)
+             (m! nil)
+             (comment on-close! e d! m!)
+             (copy! key-text))
+            (js/console.warn "not allowed to be empty!")))})
+      (=< 8 nil)
+      (button
+       {:style ui/button,
+        :inner-text "复制并提交",
+        :on-click (fn [e d! m!]
+          (if (not (or (blank? zh) (blank? en) (blank? key-text)))
+            (do
+             (d! :locale/create-locale {:key key-text, :zh zh, :en en})
+             (d! :session/query key-text)
+             (m! nil)
+             (on-close! e d! m!)
+             (copy! key-text))
+            (js/console.warn "not allowed to be empty!")))}))))))
