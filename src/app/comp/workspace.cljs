@@ -5,7 +5,7 @@
             [respo.comp.space :refer [=<]]
             [respo.core :refer [defcomp <> action-> cursor-> list-> input button span div]]
             [app.config :as config]
-            [respo-alerts.comp.alerts :refer [comp-prompt comp-alert]]
+            [respo-alerts.comp.alerts :refer [comp-prompt comp-alert comp-confirm]]
             [clojure.string :as string]
             [feather.core :refer [comp-i comp-icon]]
             ["copy-text-to-clipboard" :as copy!]
@@ -57,7 +57,7 @@
          (js/setTimeout (fn [] (m! (assoc state :copied? false))) 600))))
      (cursor->
       :remove
-      comp-alert
+      comp-confirm
       states
       {:trigger (span {:class-name "minor"} (comp-i :x 14 (hsl 0 80 80))),
        :text "确认要删除这个字段?"}
