@@ -23,7 +23,8 @@
             [recollect.diff :refer [diff-twig]]
             [recollect.twig :refer [render-twig]]
             [app.twig.container :refer [twig-container]]
-            [app.locales :as locales])
+            [app.locales :as locales]
+            [app.config-file :refer [validate!]])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (defonce *client-caches (atom {}))
@@ -161,6 +162,7 @@
   (if (= js/process.env.op "compile")
     (do
      (println (.yellow chalk "Compilation only mode!"))
+     (validate! (read-string (fs/readFileSync storage-file "utf8")))
      (locales/generate-files! (:db @*reel))
      (persist-db!))
     (do

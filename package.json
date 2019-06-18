@@ -1,6 +1,6 @@
 {
   "name": "@jimengio/locales-editor",
-  "version": "0.2.19",
+  "version": "0.2.20-a1",
   "description": "Cumulo Workflow",
   "main": "index.js",
   "bin": {
@@ -34,7 +34,7 @@
     "md5": "^2.2.1",
     "randomcolor": "^0.5.4",
     "shortid": "^2.2.14",
-    "ws": "^7.0.0"
+    "ws": "^7.0.1"
   },
   "devDependencies": {
     "copy-text-to-clipboard": "^2.1.0",
