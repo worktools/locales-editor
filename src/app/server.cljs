@@ -29,7 +29,7 @@
 
 (defonce *client-caches (atom {}))
 
-(def storage-file (path/join js/process.env.PWD "locales.edn"))
+(def storage-file (path/join (js/process.cwd) "locales.edn"))
 
 (defonce initial-db
   (let [storage (merge-local-edn!
