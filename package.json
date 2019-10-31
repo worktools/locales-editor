@@ -33,14 +33,14 @@
     "latest-version": "^5.1.0",
     "md5": "^2.2.1",
     "randomcolor": "^0.5.4",
-    "shortid": "^2.2.14",
-    "ws": "^7.1.1"
+    "shortid": "^2.2.15",
+    "ws": "^7.2.0"
   },
   "devDependencies": {
-    "copy-text-to-clipboard": "^2.1.0",
-    "feather-icons": "^4.22.1",
+    "copy-text-to-clipboard": "^2.1.1",
+    "feather-icons": "^4.24.1",
     "http-server": "^0.11.1",
-    "shadow-cljs": "^2.8.41",
-    "source-map-support": "^0.5.12"
+    "shadow-cljs": "^2.8.68",
+    "source-map-support": "^0.5.16"
   }
 }
