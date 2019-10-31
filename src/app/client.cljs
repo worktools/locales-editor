@@ -1,6 +1,6 @@
 
 (ns app.client
-  (:require [respo.core :refer [render! clear-cache! realize-ssr!]]
+  (:require [respo.core :refer [render! clear-cache! realize-ssr! *changes-logger]]
             [respo.cursor :refer [mutate]]
             [app.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]
@@ -8,7 +8,8 @@
             [app.schema :as schema]
             [app.config :as config]
             [recollect.patch :refer [patch-twig]]
-            [cumulo-util.core :refer [on-page-touch]])
+            [cumulo-util.core :refer [on-page-touch]]
+            [clojure.string :as string])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (declare dispatch!)
@@ -47,6 +48,12 @@
             (reset! *store (patch-twig @*store changes)))
         (println "unknown kind:" data)))}))
 
+(defn log-changes! [changes]
+  (println
+   (->> changes
+        (map (fn [change] (pr-str [(first change) (get change 1)])))
+        (string/join "\n"))))
+
 (def mount-target (.querySelector js/document ".app"))
 
 (defn on-keydown! [event]
@@ -73,6 +80,7 @@
   (add-watch *states :changes #(render-app! render!))
   (on-page-touch (fn [] (when (nil? @*store) (connect!))))
   (.addEventListener js/window "keydown" (fn [event] (on-keydown! event)))
+  (comment reset! *changes-logger (fn [old-el new-el changes] (log-changes! changes)))
   (println "App started!"))
 
 (defn reload! [] (clear-cache!) (render-app! render!) (println "Code updated."))
