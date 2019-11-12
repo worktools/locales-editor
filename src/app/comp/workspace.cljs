@@ -166,7 +166,7 @@
     (let [on-close (fn [m!] (m! %cursor (assoc state :editing? false)))]
       (comp-modal
        (:editing? state)
-       {}
+       {:style {:width 480}}
        on-close
        (fn []
          (cursor->

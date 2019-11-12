@@ -8568,6 +8568,25 @@
                 :type :expr, :by "B1y7Rc-Zz", :at 1573526880452, :id "ELTTFnZm7"
                 :data {
                  "T" {:type :leaf, :by "B1y7Rc-Zz", :at 1573526880846, :text "{}", :id "i2vpR0G51"}
+                 "j" {
+                  :type :expr, :by "B1y7Rc-Zz", :at 1573527748697, :id "wKUQkiFFoi"
+                  :data {
+                   "T" {:type :leaf, :by "B1y7Rc-Zz", :at 1573527749817, :text ":style", :id "F70NEqom2"}
+                   "j" {
+                    :type :expr, :by "B1y7Rc-Zz", :at 1573527750027, :id "fWTGkUtGEV"
+                    :data {
+                     "T" {:type :leaf, :by "B1y7Rc-Zz", :at 1573527750380, :text "{}", :id "djvAJuSGSV"}
+                     "j" {
+                      :type :expr, :by "B1y7Rc-Zz", :at 1573527750914, :id "Ss_HEiTB3O"
+                      :data {
+                       "T" {:type :leaf, :by "B1y7Rc-Zz", :at 1573527751702, :text ":width", :id "gynn2h38E"}
+                       "j" {:type :leaf, :by "B1y7Rc-Zz", :at 1573527753230, :text "480", :id "dHhF9g8p9c"}
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
                 }
                }
                "p" {:type :leaf, :by "B1y7Rc-Zz", :at 1573526936357, :text "on-close", :id "jSD0Gug8B"}
