@@ -31,7 +31,7 @@
        en (:en-text state)
        key-text (:key-text state)]
    (div
-    {:style {:width 480}}
+    {:style {:padding "16px"}}
     (div {} (<> "添加多语言"))
     (render-field
      "zhCN"

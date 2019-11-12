@@ -5,11 +5,10 @@
             [respo.comp.space :refer [=<]]
             [respo.core :refer [defcomp <> action-> cursor-> list-> input button span div]]
             [app.config :as config]
-            [respo-alerts.comp.alerts :refer [comp-prompt comp-alert comp-confirm]]
+            [respo-alerts.core :refer [comp-prompt comp-alert comp-confirm comp-modal]]
             [clojure.string :as string]
             [feather.core :refer [comp-i comp-icon]]
             ["copy-text-to-clipboard" :as copy!]
-            [inflow-popup.comp.dialog :refer [comp-dialog]]
             [app.comp.creator :refer [comp-creator]]
             [app.comp.modifications :refer [comp-modifications]])
   (:require-macros [clojure.core.strint :refer [<<]]))
@@ -164,16 +163,19 @@
        :inner-text "生成文件",
        :on-click (fn [e d! m!] (d! :effect/codegen nil)),
        :title "快捷键 Command s"}))
-    (if (:editing? state)
-      (comp-dialog
-       (fn [m!] (m! %cursor (assoc state :editing? false)))
-       (cursor->
-        :creator
-        comp-creator
-        states
-        translation
-        (:text state)
-        (fn [e d! m!] (m! %cursor (assoc state :editing? false)))))))))
+    (let [on-close (fn [m!] (m! %cursor (assoc state :editing? false)))]
+      (comp-modal
+       (:editing? state)
+       {}
+       on-close
+       (fn []
+         (cursor->
+          :creator
+          comp-creator
+          states
+          translation
+          (:text state)
+          (fn [e d! m!] (on-close m!)))))))))
 
 (defcomp
  comp-workspace

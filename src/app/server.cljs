@@ -69,7 +69,8 @@
 
 (defn persist-db! []
   (let [file-content (write-edn
-                      (-> (:db @*reel) (assoc :sessions {}) (dissoc :saved-locales)))
+                      (-> (:db @*reel) (assoc :sessions {}) (dissoc :saved-locales))
+                      {:indent 2})
         now (unix-time!)]
     (reset! *storage-md5 (md5 file-content))
     (write-mildly! storage-file file-content)
