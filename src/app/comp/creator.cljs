@@ -115,7 +115,8 @@
              (m! nil)
              (comment on-close! e d! m!)
              (clear-zh! m!)
-             (copy! key-text))
+             (copy! key-text)
+             (-> ".zh-input" (js/document.querySelector) (.focus)))
             (js/console.warn "not allowed to be empty!")))})
       (=< 8 nil)
       (button
