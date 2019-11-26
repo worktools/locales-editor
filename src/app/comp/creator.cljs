@@ -25,7 +25,7 @@
 
 (defcomp
  comp-creator
- (states translation init-zh on-close!)
+ (states translation init-zh on-close! clear-zh!)
  (let [state (or (:data states) {:zh-text (or init-zh ""), :en-text "", :key-text ""})
        zh (:zh-text state)
        en (:en-text state)
@@ -114,6 +114,7 @@
              (d! :session/query key-text)
              (m! nil)
              (comment on-close! e d! m!)
+             (clear-zh! m!)
              (copy! key-text))
             (js/console.warn "not allowed to be empty!")))})
       (=< 8 nil)
