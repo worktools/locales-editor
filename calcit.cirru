@@ -8915,10 +8915,6 @@
                                 :data $ {}
                                   |T $ {} (:type :leaf) (:by |root) (:at 1543324431189) (:text |some?) (:id |sfRB5Bcc0M)
                                   |j $ {} (:type :leaf) (:by |root) (:at 1543324432038) (:text |error) (:id |GxVfz3YTH6)
-                              |r $ {} (:type :expr) (:by |root) (:at 1543324432650) (:id |AqLp5DBrA)
-                                :data $ {}
-                                  |T $ {} (:type :leaf) (:by |root) (:at 1543324437888) (:text |js/console.log) (:id |AqLp5DBrAleaf)
-                                  |j $ {} (:type :leaf) (:by |root) (:at 1543324439160) (:text |error) (:id |u_txsDynWK)
                               |v $ {} (:type :expr) (:by |root) (:at 1543324441293) (:id |_vNb2itIRL)
                                 :data $ {}
                                   |T $ {} (:type :leaf) (:by |root) (:at 1543324443938) (:text |.on) (:id |_vNb2itIRLleaf)
@@ -8935,6 +8931,11 @@
                                         :data $ {}
                                           |T $ {} (:type :leaf) (:by |root) (:at 1543324465314) (:text |on-file-change!) (:id |1gRRdPRP4_leaf)
                                           |j $ {} (:type :leaf) (:by |root) (:at 1543324487028) (:text |filepath) (:id |SIUIiimZM)
+                              |p $ {} (:type :expr) (:by |B1y7Rc-Zz) (:at 1574739214299)
+                                :data $ {}
+                                  |T $ {} (:type :leaf) (:by |B1y7Rc-Zz) (:at 1574739219117) (:text |js/console.log) (:id |ejCu7CqqFleaf)
+                                  |j $ {} (:type :leaf) (:by |B1y7Rc-Zz) (:at 1574739219959) (:text |error) (:id |3XLuvbSUT)
+                                :id |ejCu7CqqF
           |sync-clients! $ {} (:type :expr) (:by |root) (:at 1545107830248) (:id |IBK4nJXIj2)
             :data $ {}
               |T $ {} (:type :leaf) (:by |root) (:at 1545107830248) (:text |defn) (:id |LskkzmsFZ-)
