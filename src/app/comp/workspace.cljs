@@ -163,7 +163,7 @@
        :inner-text "生成文件",
        :on-click (fn [e d! m!] (d! :effect/codegen nil)),
        :title "快捷键 Command s"}))
-    (let [on-close (fn [m!] (m! %cursor (assoc state :editing? false)))]
+    (let [on-close (fn [m!] (m! %cursor (assoc state :editing? false :text "")))]
       (comp-modal
        (:editing? state)
        {:style {:width 480}}
@@ -175,7 +175,8 @@
           states
           translation
           (:text state)
-          (fn [e d! m!] (on-close m!)))))))))
+          (fn [e d! m!] (on-close m!))
+          (fn [m!] (m! %cursor (assoc state :text ""))))))))))
 
 (defcomp
  comp-workspace
