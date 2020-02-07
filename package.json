@@ -13,10 +13,9 @@
     "page": "shadow-cljs clj-run build.main/page",
     "upload": "node target/upload.js",
     "up": "yarn build-cdn && yarn upload",
-    "pkg": "rm -rf dist/* && shadow-cljs release server",
+    "pkg": "rm -rfv dist/* && shadow-cljs release server",
     "serve": "http-server dist -s",
     "ln": "cd target && rm -f entry && ln -s ../entry",
-    "prepublish": "yarn pkg",
     "prod": "yarn install --production"
   },
   "repository": {
