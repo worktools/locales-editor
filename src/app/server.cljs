@@ -160,10 +160,10 @@
 
 (defn main! []
   (println "Running mode:" (if config/dev? "dev" "release"))
+  (validate! (read-string (fs/readFileSync storage-file "utf8")))
   (if (= js/process.env.op "compile")
     (do
      (println (.yellow chalk "Compilation only mode!"))
-     (validate! (read-string (fs/readFileSync storage-file "utf8")))
      (locales/generate-files! (:db @*reel))
      (persist-db!))
     (do
