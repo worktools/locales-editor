@@ -1,27 +1,36 @@
 
-(ns app.config-file (:require [cljs.spec.alpha :as s] [expound.alpha :refer [expound]]))
+(ns app.config-file
+  (:require [lilac.core
+             :refer
+             [validate-lilac
+              number+
+              string+
+              record+
+              map+
+              vector+
+              boolean+
+              or+
+              and+
+              is+
+              optional+
+              deflilac]]
+            ["chalk" :as chalk]))
 
-(s/def ::app-id string?)
-
-(s/def ::app-secret string?)
-
-(s/def
- ::locale-detail
- (s/and
-  (s/map-of (s/or :zh #(= % "zhCN") :en #(= % "enUS")) string?)
-  (fn [x] (and (contains? x "zhCN") (contains? x "enUS")))))
-
-(s/def ::locales (s/map-of string? ::locale-detail))
-
-(s/def ::version string?)
-
-(s/def ::schema (s/keys :req-un [::version]))
-
-(s/def ::settings (s/keys :req-un [::app-id ::app-secret]))
-
-(s/def ::config (s/keys :req-un [::locales ::settings ::schema]))
+(deflilac
+ lilac-config+
+ ()
+ (record+
+  {:sessions (optional+ (record+ {})),
+   :users (optional+ (record+ {})),
+   :locales (map+
+             (string+)
+             (record+ {"zhCN" (string+), "enUS" (string+)} {:exact-keys? true})),
+   :schema (record+ {:version (is+ "0.2.x")}),
+   :settings (record+ {:app-id (string+), :app-secret (string+)})}
+  {:check-keys? true}))
 
 (defn validate! [data]
-  (if (s/valid? ::config data)
-    (println "Validation success.")
-    (do (println (expound ::config data)) (js/process.exit 1))))
+  (let [result (validate-lilac data (lilac-config+))]
+    (if (:ok? result)
+      (println (chalk/gray "Validation success."))
+      (do (println (chalk/red (:formatted-message result))) (js/process.exit 1)))))
