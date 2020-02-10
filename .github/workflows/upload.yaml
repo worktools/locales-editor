@@ -1,19 +1,14 @@
-name: npm publish
+name: Upload Assets
 
 on:
-  release:
-    types: [created]
+  push: {}
 
 jobs:
-  publish-npm:
+  upload-assets:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: docker://timbru31/java-node:latest
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12
-          registry-url: https://registry.npmjs.org/
 
       - name: Get yarn cache
         id: yarn-cache
@@ -37,6 +32,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-clojars
 
-      - run: yarn && yarn pkg && npm publish
+      - run: yarn && yarn build
+        name: Build web assets
+
+      - name: Deploy to server
+        id: deploy
+        uses: Pendect/action-rsyncer@v1.1.0
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          DEPLOY_KEY: ${{secrets.rsync_private_key}}
+        with:
+          flags: '-avzr --progress'
+          options: ''
+          ssh_options: ''
+          src: 'dist/*'
+          dest: 'rsync-user@fe.jimu.io:/web-assets/repo/jimengio/locales-editor'
+
+      - name: Display status from deploy
+        run: echo "${{ steps.deploy.outputs.status }}"
