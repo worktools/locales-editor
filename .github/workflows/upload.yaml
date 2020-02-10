@@ -1,0 +1,29 @@
+name: Upload Assets
+
+on:
+  push: {}
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://timbru31/java-node:latest
+
+      - run: yarn && yarn build
+        name: "build web assets"
+
+      - name: Deploy to server
+        id: deploy
+        uses: Pendect/action-rsyncer@v1.1.0
+        env:
+          DEPLOY_KEY: ${{secrets.rsync_private_key}}
+        with:
+          flags: '-avzr --progress'
+          options: ''
+          ssh_options: ''
+          src: 'dist/*'
+          dest: 'rsync-user@fe.jimu.io:/web-assets/repo/jimengio/locales-editor'
+
+      - name: Display status from deploy
+        run: echo "${{ steps.deploy.outputs.status }}"
