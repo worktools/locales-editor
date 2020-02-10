@@ -27,7 +27,7 @@ jobs:
         env:
           cache-name: cache-clojars
         with:
-          path: ~/.m2 # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.m2
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('shadow-cljs.edn') }}
           restore-keys: |
             ${{ runner.os }}-clojars
