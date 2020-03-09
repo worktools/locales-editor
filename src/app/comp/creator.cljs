@@ -19,7 +19,7 @@
 
 (defn render-field [label content]
   (div
-   {:style (merge ui/row {:padding 8, :width 480})}
+   {:style (merge ui/row {:padding 8, :width 440})}
    (div {:style {:width 80}} (<> label))
    content))
 
