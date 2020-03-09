@@ -24,7 +24,7 @@
      :style (merge
              ui/flex
              ui/column
-             {:padding "8px 16px",
+             {:padding "4px 8px",
               :display :inline-flex,
               :background-color :white,
               :margin 8}
@@ -33,7 +33,7 @@
     (div
      {:style (merge
               ui/row-parted
-              {:min-width 240,
+              {:min-width 200,
                :font-family ui/font-code,
                :overflow :auto,
                :color (hsl 0 0 70)})}
