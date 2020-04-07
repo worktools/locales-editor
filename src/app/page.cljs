@@ -35,7 +35,7 @@
       base-info
       {:styles [(:release-ui config/site)],
        :scripts (map #(-> % :output-name prefix-cdn) assets),
-       :append-html (slurp "./entry/ga.html")}))))
+       :append-html nil}))))
 
 (defn main! []
   (println "Running mode:" (if config/dev? "dev" "release"))

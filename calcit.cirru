@@ -3858,10 +3858,7 @@
                               |v $ {} (:type :expr) (:by |B1y7Rc-Zz) (:at 1572492276576) (:id |G-yIMuWy0)
                                 :data $ {}
                                   |T $ {} (:type :leaf) (:by |B1y7Rc-Zz) (:at 1572492278184) (:text |:append-html) (:id |G-yIMuWy0leaf)
-                                  |j $ {} (:type :expr) (:by |B1y7Rc-Zz) (:at 1572492278930) (:id |G2q31TxSAc)
-                                    :data $ {}
-                                      |T $ {} (:type :leaf) (:by |B1y7Rc-Zz) (:at 1572492280952) (:text |slurp) (:id |0I9z8_asd)
-                                      |j $ {} (:type :leaf) (:by |B1y7Rc-Zz) (:at 1572492285646) (:text "|\"./entry/ga.html") (:id |giqRREKXwK)
+                                  |j $ {} (:type :leaf) (:by |B1y7Rc-Zz) (:at 1586235675412) (:text |nil) (:id |a2o2_W9i19)
         :proc $ {} (:type :expr) (:by |root) (:at 1545107534311) (:id |luD4E7qpTdI) (:data $ {})
       |app.style $ {}
         :ns $ {} (:type :expr) (:by |root) (:at 1519367963533) (:id |HygVXDNTvf)
