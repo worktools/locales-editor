@@ -3,9 +3,9 @@
   (:require [hsl.core :refer [hsl]]
             [respo-ui.core :as ui]
             [respo.comp.space :refer [=<]]
-            [respo.core :refer [defcomp <> action-> cursor-> list-> input button span div]]
+            [respo.core :refer [defcomp <> >> list-> input button span div]]
             [app.config :as config]
-            [respo-alerts.core :refer [comp-prompt comp-alert comp-confirm comp-modal]]
+            [respo-alerts.core :refer [comp-prompt comp-alert comp-confirm use-modal]]
             [clojure.string :as string]
             [feather.core :refer [comp-i comp-icon]]
             ["copy-text-to-clipboard" :as copy!]
@@ -18,7 +18,7 @@
 (defcomp
  comp-locale
  (states k v)
- (let [state (or (:data states) {:copied? false})]
+ (let [cursor (:cursor states), state (or (:data states) {:copied? false})]
    (div
     {:class-name "locale-card",
      :style (merge
@@ -39,53 +39,45 @@
                :color (hsl 0 0 70)})}
      (div
       {:style ui/row-middle}
-      (cursor->
-       :rename
-       comp-prompt
-       states
+      (comp-prompt
+       (>> states :rename)
        {:trigger (<> k), :initial k}
-       (fn [result d! m!]
+       (fn [result d!]
          (when (not (string/blank? result)) (d! :locale/rename-one {:from k, :to result}))))
       (=< 8 nil)
       (comp-icon
        :copy
        {:font-size 14, :color (hsl 0 80 80), :cursor :pointer}
-       (fn [e d! m!]
+       (fn [e d!]
          (copy! (<< "~{k}"))
-         (m! (assoc state :copied? true))
-         (js/setTimeout (fn [] (m! (assoc state :copied? false))) 600))))
-     (cursor->
-      :remove
-      comp-confirm
-      states
+         (d! cursor (assoc state :copied? true))
+         (js/setTimeout (fn [] (d! cursor (assoc state :copied? false))) 600))))
+     (comp-confirm
+      (>> states :remove)
       {:trigger (span {:class-name "minor"} (comp-i :x 14 (hsl 0 80 80))),
        :text "确认要删除这个字段?"}
-      (fn [e d! m!] (d! :locale/rm-one k))))
+      (fn [e d!] (d! :locale/rm-one k))))
     (div
      {}
      (<> "zhCN" style-hint)
-     (cursor->
-      "zhCN"
-      comp-prompt
-      states
+     (comp-prompt
+      (>> states "zhCN")
       {:trigger (<> (get v "zhCN")), :initial (get v "zhCN")}
-      (fn [result d! m!]
+      (fn [result d!]
         (when (not (string/blank? result))
           (d! :locale/edit-one {:lang "zhCN", :key k, :text result})))))
     (div
      {:style ui/row-middle}
      (<> "enUS" style-hint)
-     (cursor->
-      "enUS"
-      comp-prompt
-      states
+     (comp-prompt
+      (>> states "enUS")
       {:trigger (<> (get v "enUS")), :initial (get v "enUS")}
-      (fn [result d! m!]
+      (fn [result d!]
         (when (not (string/blank? result))
           (d! :locale/edit-one {:lang "enUS", :key k, :text result}))))
      (=< 8 nil)
      (span
-      {:on-click (fn [e d! m!] (d! :effect/translate [k (get v "zhCN")]))}
+      {:on-click (fn [e d!] (d! :effect/translate [k (get v "zhCN")]))}
       (comp-icon :globe {:font-size 14, :color (hsl 0 0 80), :cursor :pointer} nil))))))
 
 (defcomp
@@ -110,12 +102,22 @@
    {}
    (->> locales
         (sort-by (fn [[k v]] (count k)))
-        (map (fn [[k v]] [k (cursor-> k comp-locale states k v)]))))))
+        (map (fn [[k v]] [k (comp-locale (>> states k) k v)]))))))
 
 (defcomp
  comp-search-box
  (states need-save? translation)
- (let [state (or (:data states) {:text "", :editing? false})]
+ (let [cursor (:cursor states)
+       state (or (:data states) {:text ""})
+       edit-modal (use-modal
+                   (>> states :edit)
+                   {:render (fn [on-close]
+                      (comp-creator
+                       (>> states :creator)
+                       translation
+                       (:text state)
+                       (fn [e d!] (on-close d!))
+                       (fn [d!] (d! cursor (assoc state :text "")))))})]
    (div
     {:style (merge
              ui/row-parted
@@ -127,8 +129,8 @@
        :class-name "add-button",
        :inner-text "添加",
        :title "快捷键 Command i",
-       :on-click (fn [e d! m!]
-         (m! (assoc state :editing? true))
+       :on-click (fn [e d!]
+         ((:show edit-modal) d!)
          (js/setTimeout
           (fn []
             (let [target (js/document.querySelector ".zh-input")]
@@ -139,8 +141,8 @@
       {:value (:text state),
        :style ui/input,
        :placeholder "回车键搜索",
-       :on-input (fn [e d! m!] (m! (assoc state :text (:value e)))),
-       :on-keydown (fn [e d! m!]
+       :on-input (fn [e d!] (d! cursor (assoc state :text (:value e)))),
+       :on-keydown (fn [e d!]
          (when (= "Enter" (.-key (:event e))) (d! :session/query (:text state))))}))
     (div
      {}
@@ -148,41 +150,28 @@
        (button
         {:style (merge ui/button),
          :inner-text "回滚",
-         :on-click (fn [e d! m!] (d! :locale/rollback nil)),
+         :on-click (fn [e d!] (d! :locale/rollback nil)),
          :title "回滚修改到已经保存的版本"}))
      (=< 16 nil)
      (button
       {:style (merge ui/button (when need-save? )),
        :inner-text "查看全部数据",
-       :on-click (fn [e d! m!]
+       :on-click (fn [e d!]
          (comment d! :effect/display nil)
          (d! :router/change {:name :text}))})
      (=< 16 nil)
      (button
       {:style (merge ui/button (when need-save? {:background-color :blue, :color :white})),
        :inner-text "生成文件",
-       :on-click (fn [e d! m!] (d! :effect/codegen nil)),
+       :on-click (fn [e d!] (d! :effect/codegen nil)),
        :title "快捷键 Command s"}))
-    (let [on-close (fn [m!] (m! %cursor (assoc state :editing? false :text "")))]
-      (comp-modal
-       (:editing? state)
-       {:style {:width 480}}
-       on-close
-       (fn []
-         (cursor->
-          :creator
-          comp-creator
-          states
-          translation
-          (:text state)
-          (fn [e d! m!] (on-close m!))
-          (fn [m!] (m! %cursor (assoc state :text ""))))))))))
+    (:ui edit-modal))))
 
 (defcomp
  comp-workspace
  (states locales query total need-save? translation modifications)
  (div
   {:style (merge ui/flex ui/column {:overflow :auto})}
-  (cursor-> :search comp-search-box states need-save? translation)
-  (cursor-> :table comp-lang-table states locales total query)
+  (comp-search-box (>> states :search) need-save? translation)
+  (comp-lang-table (>> states :table) locales total query)
   (comp-modifications modifications)))

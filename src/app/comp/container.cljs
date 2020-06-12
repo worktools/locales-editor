@@ -2,7 +2,7 @@
 (ns app.comp.container
   (:require [hsl.core :refer [hsl]]
             [respo-ui.core :as ui]
-            [respo.core :refer [defcomp <> div span action-> cursor-> button]]
+            [respo.core :refer [defcomp <> >> div span button]]
             [respo.comp.inspect :refer [comp-inspect]]
             [respo.comp.space :refer [=<]]
             [respo-message.comp.messages :refer [comp-messages]]
@@ -32,7 +32,7 @@
             :background-size :contain}})
   (div
    {:style (merge ui/center {:cursor :pointer, :line-height "32px"}),
-    :on-click (action-> :effect/connect nil)}
+    :on-click (fn [e d!] (d! :effect/connect nil))}
    (<> "No connection..." {:font-family ui/font-fancy, :font-size 24})
    (=< nil 16)
    (comp-md
@@ -67,10 +67,8 @@
       (if (:logged-in? store)
         (case (:name router)
           :home
-            (cursor->
-             :workspace
-             comp-workspace
-             states
+            (comp-workspace
+             (>> states :workspace)
              (:locales store)
              (:query session)
              (:matched-count store)
@@ -87,7 +85,7 @@
       (comp-messages
        (get-in store [:session :messages])
        {}
-       (fn [info d! m!] (d! :session/remove-message info)))
+       (fn [info d!] (d! :session/remove-message info)))
       (when dev? (comp-reel (:reel-length store) {}))))))
 
 (def style-body {:padding "8px 16px"})

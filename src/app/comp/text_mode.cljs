@@ -21,12 +21,12 @@
    (button
     {:inner-text "复制",
      :style ui/button,
-     :on-click (fn [e d! m!] (copy! (write-edn (:locales store))))})
+     :on-click (fn [e d!] (copy! (write-edn (:locales store))))})
    (=< 40 nil)
    (a
     {:style ui/link,
      :inner-text "返回",
-     :on-click (fn [e d! m!] (d! :router/change {:name :home}))}))
+     :on-click (fn [e d!] (d! :router/change {:name :home}))}))
   (=< nil 8)
   (textarea
    {:style (merge

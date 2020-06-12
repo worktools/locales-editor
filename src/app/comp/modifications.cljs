@@ -3,7 +3,7 @@
   (:require [hsl.core :refer [hsl]]
             [respo-ui.core :as ui]
             [respo.comp.space :refer [=<]]
-            [respo.core :refer [defcomp <> action-> list-> span div]]
+            [respo.core :refer [defcomp <> list-> span div]]
             [app.config :as config])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
@@ -18,7 +18,7 @@
            :cursor :pointer,
            :font-family ui/font-code},
    :inner-text k,
-   :on-click (fn [e d! m!] (d! :session/query k))}))
+   :on-click (fn [e d!] (d! :session/query k))}))
 
 (def style-group
   {:display :inline-block, :color (hsl 0 0 80), :margin-right 40, :font-family ui/font-fancy})
