@@ -2,7 +2,7 @@
 (ns app.comp.creator
   (:require [hsl.core :refer [hsl]]
             [respo-ui.core :as ui]
-            [respo.core :refer [defcomp <> div span action-> cursor-> button input]]
+            [respo.core :refer [defcomp <> div span button input]]
             [respo.comp.inspect :refer [comp-inspect]]
             [respo.comp.space :refer [=<]]
             [app.comp.profile :refer [comp-profile]]
@@ -26,7 +26,8 @@
 (defcomp
  comp-creator
  (states translation init-zh on-close! clear-zh!)
- (let [state (or (:data states) {:zh-text (or init-zh ""), :en-text "", :key-text ""})
+ (let [cursor (:cursor states)
+       state (or (:data states) {:zh-text (or init-zh ""), :en-text "", :key-text ""})
        zh (:zh-text state)
        en (:en-text state)
        key-text (:key-text state)]
@@ -41,12 +42,12 @@
        {:style (merge ui/input {:width 320}),
         :class-name "zh-input",
         :value zh,
-        :on-input (fn [e d! m!] (m! (assoc state :zh-text (:value e))))})
+        :on-input (fn [e d!] (d! cursor (assoc state :zh-text (:value e))))})
       (div
        {:style (merge ui/row-middle {:min-height 32, :margin-bottom -8})}
        (span
         {:style {:cursor :pointer},
-         :on-click (fn [e d! m!] (d! :effect/translate [key-text zh]))}
+         :on-click (fn [e d!] (d! :effect/translate [key-text zh]))}
         (comp-i :globe 14 (hsl 200 80 60)))
        (=< 8 nil)
        (if (some? translation)
@@ -60,8 +61,9 @@
           (=< 8 nil)
           (span
            {:style {:cursor :pointer},
-            :on-click (fn [e d! m!]
-              (m!
+            :on-click (fn [e d!]
+              (d!
+               cursor
                (assoc
                 state
                 :en-text
@@ -73,7 +75,7 @@
           (=< 8 nil)
           (span
            {:style {:cursor :pointer},
-            :on-click (fn [e d! m!] (d! :session/store-translation nil))}
+            :on-click (fn [e d!] (d! :session/store-translation nil))}
            (comp-i :x 14 (hsl 20 80 60))))
          (<> "翻译" {:color (hsl 0 0 80)})))))
     (render-field
@@ -83,12 +85,12 @@
       (input
        {:style (merge ui/input {:width 320}),
         :value en,
-        :on-input (fn [e d! m!] (m! (assoc state :en-text (:value e))))})
+        :on-input (fn [e d!] (d! cursor (assoc state :en-text (:value e))))})
       (=< 8 nil)
       (span
        {:style {:cursor :pointer},
-        :on-click (fn [e d! m!]
-          (m! (assoc state :key-text (generate-key en)))
+        :on-click (fn [e d!]
+          (d! cursor (assoc state :key-text (generate-key en)))
           (d! :session/store-translation nil))}
        (comp-i :corner-down-left 14 (hsl 200 80 70)))))
     (render-field
@@ -98,7 +100,7 @@
       (input
        {:style (merge ui/input {:width 320}),
         :value key-text,
-        :on-input (fn [e d! m!] (m! (assoc state :key-text (:value e))))})))
+        :on-input (fn [e d!] (d! cursor (assoc state :key-text (:value e))))})))
     (div
      {:style (merge ui/row-parted {:margin-top 16})}
      (span {})
@@ -107,14 +109,14 @@
       (button
        {:style ui/button,
         :inner-text "连续提交",
-        :on-click (fn [e d! m!]
+        :on-click (fn [e d!]
           (if (not (or (blank? zh) (blank? en) (blank? key-text)))
             (do
              (d! :locale/create-locale {:key key-text, :zh zh, :en en})
              (d! :session/query key-text)
-             (m! nil)
-             (comment on-close! e d! m!)
-             (clear-zh! m!)
+             (d! cursor nil)
+             (comment on-close! e d!)
+             (clear-zh! d!)
              (copy! key-text)
              (-> ".zh-input" (js/document.querySelector) (.focus)))
             (js/console.warn "not allowed to be empty!")))})
@@ -122,12 +124,12 @@
       (button
        {:style ui/button,
         :inner-text "复制并提交",
-        :on-click (fn [e d! m!]
+        :on-click (fn [e d!]
           (if (not (or (blank? zh) (blank? en) (blank? key-text)))
             (do
              (d! :locale/create-locale {:key key-text, :zh zh, :en en})
              (d! :session/query key-text)
-             (m! nil)
-             (on-close! e d! m!)
+             (d! cursor nil)
+             (on-close! e d!)
              (copy! key-text))
             (js/console.warn "not allowed to be empty!")))}))))))

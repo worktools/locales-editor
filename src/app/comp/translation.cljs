@@ -3,7 +3,7 @@
   (:require [hsl.core :refer [hsl]]
             [respo-ui.core :as ui]
             [respo.comp.space :refer [=<]]
-            [respo.core :refer [defcomp <> action-> span div button]]
+            [respo.core :refer [defcomp <> span div button]]
             [app.config :as config])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
@@ -31,9 +31,9 @@
     (button
      {:style ui/button,
       :inner-text "关闭",
-      :on-click (fn [e d! m!] (d! :session/store-translation nil))})
+      :on-click (fn [e d!] (d! :session/store-translation nil))})
     (=< 8 nil)
     (button
      {:style ui/button,
       :inner-text "使用",
-      :on-click (fn [e d! m!] (d! :locale/accept-translation info))})))))
+      :on-click (fn [e d!] (d! :locale/accept-translation info))})))))
