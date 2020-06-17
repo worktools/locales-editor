@@ -21,7 +21,12 @@
          (map
           (fn [k]
             (let [v (get-in locales [k lang])]
-              (str "  " k ": " (if (string/includes? v "\"") (str "'" v "'") (pr-str v)) ","))))
+              (str
+               "  "
+               (if (re-find #"\.|-" k) (pr-str k) k)
+               ": "
+               (if (string/includes? v "\"") (str "'" v "'") (pr-str v))
+               ","))))
          (sort lines-sorter)
          (string/join "\n"))))
 
@@ -38,7 +43,12 @@
                             (str
                              "export interface ILang {\n"
                              (->> locale-keys
-                                  (map (fn [k] (str "  " k ": string;")))
+                                  (map
+                                   (fn [k]
+                                     (str
+                                      "  "
+                                      (if (re-find #"\.|-" k) (pr-str k) k)
+                                      ": string;")))
                                   (sort lines-sorter)
                                   (string/join "\n"))
                              "\n}\n"))
