@@ -6,8 +6,45 @@
             ["path" :as path]
             [clojure.set :refer [intersection difference]]
             ["md5" :as md5]
-            ["axios" :as axios])
+            ["axios" :as axios]
+            [cljs.core.async :refer [go <!]]
+            [cljs.core.async.interop :refer [<p!]])
   (:require-macros [clojure.core.strint :refer [<<]]))
+
+(defn chan-translate-sentence [text settings]
+  (let [q (js/encodeURI text)
+        salt (rand-int 100)
+        app-key (:app-id settings)
+        app-secret (:app-secret settings)
+        sign (string/upper-case (md5 (str app-key text salt app-secret)))
+        url (<<
+             "http://openapi.youdao.com/api?q=~{q}&from=EN&to=zh_CHS&appKey=~{app-key}&salt=~{salt}&sign=~{sign}")]
+    (comment println "settings" settings)
+    (when (or (nil? app-key) (nil? app-secret))
+      (println "app-key and app-secret are required to use translation!")
+      (js/process.exit 1))
+    (comment println "data" salt (str app-key text salt app-secret) app-key app-secret sign)
+    (comment -> (.get axios url) (.then (fn [result] (.log js/console (.-data result)))))
+    (comment println url)
+    (go
+     (try
+      (let [response (<p!
+                      (-> axios
+                          (.get
+                           "http://openapi.youdao.com/api"
+                           (clj->js
+                            {:params {:q text,
+                                      :from "zh-CHS",
+                                      :to "EN",
+                                      :appKey app-key,
+                                      :salt salt,
+                                      :sign sign}}))))
+            data (js->clj (.-data response) :keywordize-keys true)]
+        (comment println "data" data)
+        (if (= "0" (:errorCode data))
+          (-> data :translation first)
+          (do (js/console.warn "Request failed:" data) (str "Request failed:" data))))
+      (catch js/Error error (do (js/console.log settings error) (str error)))))))
 
 (defn format-keys [xs] (if (empty? xs) "" (str "(" (string/join ", " xs) ")")))
 
@@ -92,36 +129,3 @@
       format-keys
       (<<
        "Added ~(count added-keys) keys~(format-keys added-keys), removed ~(count removed-keys) keys~(format-keys removed-keys), modified ~(count changed-keys) keys~(format-keys changed-keys).")))))
-
-(defn translate-sentense! [text settings cb]
-  (let [q (js/encodeURI text)
-        salt (rand-int 100)
-        app-key (:app-id settings)
-        app-secret (:app-secret settings)
-        sign (string/upper-case (md5 (str app-key text salt app-secret)))
-        url (<<
-             "http://openapi.youdao.com/api?q=~{q}&from=EN&to=zh_CHS&appKey=~{app-key}&salt=~{salt}&sign=~{sign}")]
-    (println "settings" settings)
-    (when (or (nil? app-key) (nil? app-secret))
-      (println "app-key and app-secret are required to use translation!")
-      (js/process.exit 1))
-    (comment println "data" salt (str app-key text salt app-secret) app-key app-secret sign)
-    (comment -> (.get axios url) (.then (fn [result] (.log js/console (.-data result)))))
-    (comment println url)
-    (-> axios
-        (.get
-         "http://openapi.youdao.com/api"
-         (clj->js
-          {:params {:q text,
-                    :from "zh-CHS",
-                    :to "EN",
-                    :appKey app-key,
-                    :salt salt,
-                    :sign sign}}))
-        (.then
-         (fn [response]
-           (let [data (js->clj (.-data response) :keywordize-keys true)]
-             (comment println "data" data)
-             (if (= "0" (:errorCode data))
-               (cb (-> data :translation first))
-               (js/console.warn "Request failed:" data))))))))

@@ -24,7 +24,8 @@
             [recollect.twig :refer [render-twig]]
             [app.twig.container :refer [twig-container]]
             [app.locales :as locales]
-            [app.config-file :refer [validate!]])
+            [app.config-file :refer [validate!]]
+            [cljs.core.async :refer [go <!]])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (defonce *client-caches (atom {}))
@@ -90,10 +91,8 @@
           (persist-db!)
           (dispatch! :locale/mark-saved nil sid))
        (= op :effect/translate)
-         (locales/translate-sentense!
-          (last op-data)
-          (:settings db)
-          (fn [result]
+         (go
+          (let [result (<! (locales/chan-translate-sentence (last op-data) (:settings db)))]
             (dispatch! :session/store-translation {:key (first op-data), :text result} sid)))
        :else
          (let [new-reel (reel-reducer @*reel updater op op-data sid op-id op-time)]
