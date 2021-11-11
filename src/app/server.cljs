@@ -19,13 +19,14 @@
             [clojure.set :refer [intersection difference]]
             [cumulo-util.core :refer [id! repeat! unix-time! delay!]]
             [ws-edn.server :refer [wss-serve! wss-send! wss-each!]]
-            [cumulo-util.file :refer [write-mildly! get-backup-path! merge-local-edn!]]
+            [cumulo-util.file :refer [get-backup-path! merge-local-edn!]]
             [recollect.diff :refer [diff-twig]]
             [recollect.twig :refer [render-twig]]
             [app.twig.container :refer [twig-container]]
             [app.locales :as locales]
             [app.config-file :refer [validate!]]
-            [cljs.core.async :refer [go <!]])
+            [cljs.core.async :refer [go <!]]
+            ["dotenv" :as dotnet])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (defonce *client-caches (atom {}))
@@ -67,6 +68,30 @@
                chalk
                (<<
                 "New version ~{npm-version} available, current one is ~{version} . Please upgrade!\n\nyarn global add ~{pkg-name}\n")))))))))
+
+(defn write-mildly! [file-path content]
+  (let [dir (path/dirname file-path)
+        filename (path/basename file-path)
+        temp-name (str
+                   (or js/process.env.TMP_FOLDER "/tmp/")
+                   (.now js/Date)
+                   "-"
+                   (.random js/Math)
+                   "-"
+                   filename)
+        do-write! (fn []
+                    (fs/writeFileSync temp-name content)
+                    (fs/renameSync temp-name file-path)
+                    (println "Write to file:" file-path))]
+    (if (fs/existsSync file-path)
+      (let [old-content (fs/readFileSync file-path "utf8")]
+        (if (not= content old-content)
+          (do-write!)
+          (comment println "same file, skipping:" file-path)))
+      (do
+       (when (and (not= "." dir) (not (fs/existsSync dir)))
+         (fs/mkdirSync dir (clj->js {:recursive true})))
+       (do-write!)))))
 
 (defn persist-db! []
   (let [file-content (write-edn
@@ -159,6 +184,7 @@
 
 (defn main! []
   (println "Running mode:" (if config/dev? "dev" "release"))
+  (dotnet/config)
   (validate! (read-string (fs/readFileSync storage-file "utf8")))
   (if (= js/process.env.op "compile")
     (do
