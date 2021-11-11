@@ -8,7 +8,8 @@
             ["md5" :as md5]
             ["axios" :as axios]
             [cljs.core.async :refer [go <!]]
-            [cljs.core.async.interop :refer [<p!]])
+            [cljs.core.async.interop :refer [<p!]]
+            ["os" :as os])
   (:require-macros [clojure.core.strint :refer [<<]]))
 
 (defn chan-translate-sentence [text settings]
@@ -67,11 +68,15 @@
          (sort lines-sorter)
          (string/join "\n"))))
 
+(def re-newline (new js/RegExp "\\n" "g"))
+
+(defn replace-newline [content] (.replace content re-newline (.-EOL os)))
+
 (defn write-file! [filepath content]
   (fs/writeFile filepath content (fn [err] (if (some? err) (js/console.error err)))))
 
 (defn generate-files! [db]
-  (let [base js/process.env.PWD
+  (let [base (js/process.cwd)
         en-file (.join path base "en-us.ts")
         zh-file (.join path base "zh-cn.ts")
         interface-file (.join path base "interface.ts")
@@ -91,7 +96,7 @@
                              "\n}\n"))
         types-only? (contains? #{"true" "on"} js/process.env.typesOnly)]
     (println "Found" (count locales) "entries." "Genrating files...")
-    (write-file! interface-file interface-content)
+    (write-file! interface-file (replace-newline interface-content))
     (if types-only?
       (println "Generating types only.")
       (let [en-content (str
@@ -102,8 +107,8 @@
                         "import { ILang } from \"./interface\";\nexport const zhCN: ILang = {\n"
                         (get-local-file locales "zhCN")
                         "\n};\n")]
-        (write-file! en-file en-content)
-        (write-file! zh-file zh-content)))))
+        (write-file! en-file (replace-newline en-content))
+        (write-file! zh-file (replace-newline zh-content))))))
 
 (defn get-modifications [locales saved-locales]
   (let [new-keys (set (keys locales))
