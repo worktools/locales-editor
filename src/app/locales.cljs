@@ -76,7 +76,7 @@
   (fs/writeFile filepath content (fn [err] (if (some? err) (js/console.error err)))))
 
 (defn generate-files! [db]
-  (let [base js/process.env.PWD
+  (let [base (js/process.cwd)
         en-file (.join path base "en-us.ts")
         zh-file (.join path base "zh-cn.ts")
         interface-file (.join path base "interface.ts")

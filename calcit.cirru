@@ -4721,7 +4721,9 @@
                       |T $ {} (:type :expr) (:by |root) (:at 1542180609226) (:id |oOubxqa5FB)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |root) (:at 1542180608897) (:text |base) (:id |5Imb6ja4WF)
-                          |j $ {} (:type :leaf) (:by |root) (:at 1542180619413) (:text |js/process.env.PWD) (:id |R4mip9SqD)
+                          |j $ {} (:type :expr) (:by |B1y7Rc-Zz) (:at 1636629627499)
+                            :data $ {}
+                              |T $ {} (:type :leaf) (:by |B1y7Rc-Zz) (:at 1636629666626) (:text |js/process.cwd) (:id |R4mip9SqD)
                       |j $ {} (:type :expr) (:by |root) (:at 1542180623195) (:id |_jVTTLukIO)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |root) (:at 1542180628212) (:text |en-file) (:id |_jVTTLukIOleaf)
